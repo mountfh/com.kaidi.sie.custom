@@ -1,0 +1,50 @@
+
+**** Error file opened at 20210601 212141 China Standard Time Rel. 3.0.16 (2016-12-06) [721.800]
+Error:  >Tue Jun 01 21:21:41,944<    RfcException:
+	message: Parameter ABAP system number ('sysnr') needs to be a two digit number string instead of 'S4D'
+	return code: RFC_INVALID_PARAMETER (19)
+	error group: 101
+	key: RFC_ERROR_PROGRAM
+	at com.sap.conn.rfc.api.RfcOptions.checkSystemNumber(RfcOptions.java:452)
+	at com.sap.conn.rfc.api.RfcOptions.checkParameters(RfcOptions.java:280)
+	at com.sap.conn.jco.rt.MiddlewareJavaRfc$JavaRfcClient.initialize(MiddlewareJavaRfc.java:1318)
+	at com.sap.conn.jco.rt.MiddlewareJavaRfc$JavaRfcClient.connect(MiddlewareJavaRfc.java:1348)
+	at com.sap.conn.jco.rt.ClientConnection.connect(ClientConnection.java:704)
+	at com.sap.conn.jco.rt.RepositoryConnection.connect(RepositoryConnection.java:71)
+	at com.sap.conn.jco.rt.PoolingFactory.init(PoolingFactory.java:115)
+	at com.sap.conn.jco.rt.ConnectionManager.createFactory(ConnectionManager.java:349)
+	at com.sap.conn.jco.rt.DefaultConnectionManager.createFactory(DefaultConnectionManager.java:46)
+	at com.sap.conn.jco.rt.ConnectionManager.getFactory(ConnectionManager.java:323)
+	at com.sap.conn.jco.rt.RfcDestination.getSystemID(RfcDestination.java:1038)
+	at com.sap.conn.jco.rt.RepositoryManager.getRepository(RepositoryManager.java:29)
+	at com.sap.conn.jco.rt.RfcDestination.initRepository(RfcDestination.java:993)
+	at com.sap.conn.jco.rt.RfcDestination.getRepository(RfcDestination.java:1122)
+	at com.sap.conn.jco.rt.RfcDestination.getRepository(RfcDestination.java:34)
+	at com.leoch.sie.custom.utils.SAPConn.main(SAPConn.java:154)
+
+
+
+**** Error file opened at 20210601 212455 China Standard Time Rel. 3.0.16 (2016-12-06) [721.800]
+Error:  >Tue Jun 01 21:24:55,991<    RfcException:
+	message: Parameter ABAP system number ('sysnr') needs to be a two digit number string instead of 'S4D'
+	return code: RFC_INVALID_PARAMETER (19)
+	error group: 101
+	key: RFC_ERROR_PROGRAM
+	at com.sap.conn.rfc.api.RfcOptions.checkSystemNumber(RfcOptions.java:452)
+	at com.sap.conn.rfc.api.RfcOptions.checkParameters(RfcOptions.java:280)
+	at com.sap.conn.jco.rt.MiddlewareJavaRfc$JavaRfcClient.initialize(MiddlewareJavaRfc.java:1318)
+	at com.sap.conn.jco.rt.MiddlewareJavaRfc$JavaRfcClient.connect(MiddlewareJavaRfc.java:1348)
+	at com.sap.conn.jco.rt.ClientConnection.connect(ClientConnection.java:704)
+	at com.sap.conn.jco.rt.RepositoryConnection.connect(RepositoryConnection.java:71)
+	at com.sap.conn.jco.rt.PoolingFactory.init(PoolingFactory.java:115)
+	at com.sap.conn.jco.rt.ConnectionManager.createFactory(ConnectionManager.java:349)
+	at com.sap.conn.jco.rt.DefaultConnectionManager.createFactory(DefaultConnectionManager.java:46)
+	at com.sap.conn.jco.rt.ConnectionManager.getFactory(ConnectionManager.java:323)
+	at com.sap.conn.jco.rt.RfcDestination.getSystemID(RfcDestination.java:1038)
+	at com.sap.conn.jco.rt.RepositoryManager.getRepository(RepositoryManager.java:29)
+	at com.sap.conn.jco.rt.RfcDestination.initRepository(RfcDestination.java:993)
+	at com.sap.conn.jco.rt.RfcDestination.getRepository(RfcDestination.java:1122)
+	at com.sap.conn.jco.rt.RfcDestination.getRepository(RfcDestination.java:34)
+	at com.leoch.sie.custom.utils.SAPConn.main(SAPConn.java:154)
+
+

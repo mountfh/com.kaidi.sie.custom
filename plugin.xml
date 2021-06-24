@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.eclipse.ui.commands" >
+      <command name="物料信息发送SAP" id="PartSentToSap" />
+      <command name="物料ECN同步SAP" id="ChangePartToSap" />
+      <command name="BOM同步SAP" id="BOMSentToSap" />
+      <command name="BOM ECN同步SAP" id="ECNSentToSap" />
+   </extension>
+   <extension point="org.eclipse.ui.handlers">
+      <handler commandId="PartSentToSap"
+            class="com.leoch.sie.custom.sap.handlers.PartSentToSapHandler">
+      </handler>
+      <handler commandId="BOMSentToSap"
+            class="com.leoch.sie.custom.sap.handlers.BOMSentToSapHandler">
+      </handler>
+      <handler commandId="ChangePartToSap"
+            class="com.leoch.sie.custom.sap.handlers.ChangePartToSapHandler">
+      </handler>
+      <handler commandId="ECNSentToSap"
+            class="com.leoch.sie.custom.sap.handlers.ECNSentToSapHandler">
+      </handler>
+      <handler commandId="ViewPartStock"
+            class="com.leoch.sie.custom.sap.handlers.ViewPartStockHandler">
+      </handler>
+      <handler commandId="SetMailRead"
+            class="com.leoch.sie.custom.handlers.SetMailReadHandler">
+      </handler>
+      <handler commandId="SetMailUnread"
+            class="com.leoch.sie.custom.handlers.SetMailUnreadHandler">
+      </handler>
+   </extension>
+   <extension point="org.eclipse.ui.menus">
+      
+      <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu label="凯迪定制" id="com.sie.teamcenter.menus.sampleMenu" />
+      </menuContribution>   
+        
+      <menuContribution locationURI="menu:com.sie.teamcenter.menus.sampleMenu">
+         <menu label="ERP集成" id="com.leoch.sie.custom.sap.menus.SyncERP">
+            <command commandId="PartSentToSap" id="PartSentToSap" />
+            <command commandId="ChangePartToSap" id="ChangePartToSap" />
+            <command commandId="BOMSentToSap" id="BOMSentToSap" />
+            <command commandId="ECNSentToSap" id="ECNSentToSap" />
+         </menu>
+      </menuContribution>
+      
+      <menuContribution 
+         locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+            commandId="SetMailRead"
+            id="SetMailRead">
+            <visibleWhen>
+               <and>
+                  <reference
+                         definitionId="com.teamcenter.rac.ui.inMainPerspective">
+                  </reference>
+				  <iterate ifEmpty="false">
+					 <adapt type="com.teamcenter.rac.kernel.TCComponent">
+						<test 
+								property="com.teamcenter.rac.kernel.TCComponent.typeClass" 
+								value="Envelope">
+					    </test>
+				     </adapt>
+				  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         
+         <command
+            commandId="SetMailUnread"
+            id="SetMailUnread">
+            <visibleWhen>
+               <and>
+                  <reference
+                         definitionId="com.teamcenter.rac.ui.inMainPerspective">
+                  </reference>
+                  <iterate ifEmpty="false">
+					 <adapt type="com.teamcenter.rac.kernel.TCComponent">
+						<test 
+								property="com.teamcenter.rac.kernel.TCComponent.typeClass" 
+								value="Envelope">
+					    </test>
+				     </adapt>
+				  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+           
+   </extension>
+</plugin>
