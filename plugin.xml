@@ -7,8 +7,14 @@
       <command name="物料ECN同步SAP" id="ChangePartToSap" />
       <command name="BOM同步SAP" id="BOMSentToSap" />
       <command name="BOM ECN同步SAP" id="ECNSentToSap" />
+      <command name="工艺表同步SAP" id="BOPSentToSap" />
+      
+      
    </extension>
    <extension point="org.eclipse.ui.handlers">
+        <handler commandId="BOPSentToSap"
+            class="com.leoch.sie.custom.sap.handlers.BOPSentToSapHandler">
+      </handler>
       <handler commandId="PartSentToSap"
             class="com.leoch.sie.custom.sap.handlers.PartSentToSapHandler">
       </handler>
@@ -43,6 +49,7 @@
             <command commandId="ChangePartToSap" id="ChangePartToSap" />
             <command commandId="BOMSentToSap" id="BOMSentToSap" />
             <command commandId="ECNSentToSap" id="ECNSentToSap" />
+            <command commandId="BOPSentToSap" id="BOPSentToSap" />
          </menu>
       </menuContribution>
       
