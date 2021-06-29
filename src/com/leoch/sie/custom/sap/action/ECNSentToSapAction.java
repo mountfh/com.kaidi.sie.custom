@@ -33,6 +33,8 @@ import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
 
+import cocom.leoch.sie.custom.oa.action.PartSyncToOAAction;
+
 public class ECNSentToSapAction {
 	
 	public static String ecn_functionName = "ZPLM_ECN_INFO";
@@ -77,8 +79,9 @@ public class ECNSentToSapAction {
 			List<PartModel> partModels = new ArrayList<>();
 			for (int i = 0; i < solus.size(); i++) {
 				TCComponentItemRevision part = solus.get(i);
+				String revsionId = part.getProperty("item_revision_id");
 				String  sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
-				if (!sentToSAP.equals("true")) {
+				if (!sentToSAP.contains(revsionId)) {
 					PartModel model = new PartModel(part);
 					msg += model.load();
 					partModels.add(model);
@@ -111,6 +114,17 @@ public class ECNSentToSapAction {
 				return;
 			}
 			MessageBox.post("ECN同步SAP成功", "提示", MessageBox.INFORMATION);
+			String  oaMsg  = "";
+			if (partModels != null && partModels.size() != 0) {
+				PartSyncToOAAction synOA = new PartSyncToOAAction();
+				msg = synOA.sent(partModels);
+				if (!msg.isEmpty()) {
+					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					return;
+				}
+				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
+			}
+			MessageBox.post("BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();

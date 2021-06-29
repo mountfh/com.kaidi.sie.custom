@@ -90,10 +90,10 @@ public class BOMLineModel {
 		
 		msg += Part.ckeckBySAP(rev, bomLineId);
 		
-		String isSentSAP = rev.getProperty(PartModel.PartSentSAPFlag);
-		if (!isSentSAP.equals("true")) {
-			msg += bomLineId + "物料未同步SAP\n";
-		}
+//		String isSentSAP = rev.getProperty(PartModel.PartSentSAPFlag);
+//		if (!isSentSAP.equals("true")) {
+//			msg += bomLineId + "物料未同步SAP\n";
+//		}
 		info.put(POSTP, "L"); // 项目类别（物料单）,默认值为L
 		if (bomLineId.length() > IDNRK_L) {
 			msg += bomLineId + "物料编码长度不能超过" + IDNRK_L + "\n";

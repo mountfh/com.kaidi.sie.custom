@@ -77,8 +77,9 @@ public class BOMSentToSAPAction {
 			List<String> ids = new ArrayList<>();
 			for (int i = 0; i < revs.size(); i++) {
 				TCComponentItemRevision part = revs.get(i);
+				String revsionId = part.getProperty("item_revision_id");
 				String  sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
-				if (!sentToSAP.equals("true")) {
+				if (!sentToSAP.contains(revsionId)) {
 					PartModel model = new PartModel(part);
 					msg += model.load();
 					partModels.add(model);

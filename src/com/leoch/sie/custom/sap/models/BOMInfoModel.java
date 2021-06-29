@@ -1,5 +1,6 @@
 package com.leoch.sie.custom.sap.models;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -186,7 +187,7 @@ public class BOMInfoModel {
 	 * @return Map<Object,Double>    BOM行对应的数量
 	 * @throws
 	 */
-	    
+	DecimalFormat df = new DecimalFormat("#0.000");	    
 	public Map<Object, Double> getQuantityAndCheck(TCComponentBOMLine top, AIFComponentContext[] subLines) throws TCException {
 		double topQuantity = 10000;
 		checkQuantityMsg = "";
@@ -215,8 +216,7 @@ public class BOMInfoModel {
 						checkQuantityMsg += topID + "的子项(" + subID+ ")数量为空\n";
 						continue;
 					}
-					quantity =  (Double.parseDouble(quantity) * topQuantity)+"";
-					boolean b = NumberValidationUtils.isQuantityNumber1(quantity);
+					boolean b = NumberValidationUtils.isQuantityNumber2(quantity);
 					if (b && Double.parseDouble(quantity) == 0) {
 						b = false;
 					}
@@ -245,7 +245,13 @@ public class BOMInfoModel {
 					vs.put(subLines[i], topQuantity / q2 * q1);
 				} else {
 					double q = Double.parseDouble(quantity);
-					vs.put(subLines[i], topQuantity * q);
+					if(!NumberValidationUtils.isQuantityNumber2(q+"")) {
+						q = topQuantity * q;
+						q = Double.parseDouble(df.format(q));
+						vs.put(subLines[i], q);
+					}else {
+						vs.put(subLines[i], topQuantity * q);
+					}
 				}
 			}
 		}

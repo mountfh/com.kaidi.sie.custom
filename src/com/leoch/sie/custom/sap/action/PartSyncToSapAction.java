@@ -80,9 +80,10 @@ public class PartSyncToSapAction {
 			if (target instanceof TCComponentItemRevision) {
 				TCComponentItemRevision part = (TCComponentItemRevision) target;
 				String part_type = part.getType();
+				String revsionId = part.getProperty("item_revision_id");
 				String sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
 				if (part_type.endsWith("PartRevision")) {
-					if( isNew  && sentToSAP.equals("true")) {continue;}
+					if( isNew  && sentToSAP.contains(revsionId)) {continue;}
 					PartModel model = new PartModel(part);
 					msg += model.load();
 					models.add(model);

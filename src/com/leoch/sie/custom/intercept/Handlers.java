@@ -396,7 +396,10 @@ public class Handlers {
 							
 							String type = entry.getType();
 							if (type.contains("PartRevision")) {
-								entry.setProperty(PartModel.PartSentSAPFlag, "false");
+								String flag  = entry.getProperty(PartModel.PartSentSAPFlag);
+								String revsionId = entry.getProperty("item_revision_id");
+								flag = flag.replaceAll(flag, revsionId);
+								entry.setProperty(PartModel.PartSentSAPFlag, flag);
 								entry.setLogicalProperty(BOMStruct.BOMSentSAPFlag, false);
 							}
 						}
