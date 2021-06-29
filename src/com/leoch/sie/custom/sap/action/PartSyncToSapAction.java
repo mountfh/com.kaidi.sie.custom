@@ -99,13 +99,14 @@ public class PartSyncToSapAction {
 			MessageBox.post("任务目标下没有需要同步SAP与OA的物料！", "提示", MessageBox.INFORMATION);
 			return;
 		}
-		PartSyncToOAAction synOA = new PartSyncToOAAction();
-		msg = synOA.sent(models);
+		
+		msg = sent(models, ids);
 		if (!msg.isEmpty()) {
 			MessageBox.post(msg, "错误", MessageBox.ERROR);
 			return;
 		}
-		msg = sent(models, ids);
+		PartSyncToOAAction synOA = new PartSyncToOAAction();
+		msg = synOA.sent(models);
 		if (!msg.isEmpty()) {
 			MessageBox.post(msg, "错误", MessageBox.ERROR);
 			return;

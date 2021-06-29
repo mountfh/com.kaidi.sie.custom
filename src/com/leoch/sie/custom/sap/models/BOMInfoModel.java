@@ -209,8 +209,12 @@ public class BOMInfoModel {
 							continue;
 						}
 					} 
-					checkQuantityMsg += topID + "的子项(" + subID + ")用量不是分数格式\n";
+					checkQuantityMsg += topID + "的子项(" + subID + ")数量不是分数格式\n";
 				} else {
+					if(quantity == null || quantity.isEmpty()) {
+						checkQuantityMsg += topID + "的子项(" + subID+ ")数量为空\n";
+						continue;
+					}
 					quantity =  (Double.parseDouble(quantity) * topQuantity)+"";
 					boolean b = NumberValidationUtils.isQuantityNumber1(quantity);
 					if (b && Double.parseDouble(quantity) == 0) {
@@ -219,7 +223,7 @@ public class BOMInfoModel {
 					if (b) {
 						continue;
 					}
-					checkQuantityMsg += topID + "的子项(" + subID+ ")用量不是小数点前1-6位，小数点后1-7位的小数\n";
+					checkQuantityMsg += topID + "的子项(" + subID+ ")数量不是小数点前1-6位，小数点后1-7位的小数\n";
 				}
 			}
 		}

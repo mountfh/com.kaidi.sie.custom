@@ -20,7 +20,6 @@ import com.leoch.sie.custom.utils.Sort;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
-import com.sap.conn.jco.JCoParameterList;
 import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
@@ -29,6 +28,8 @@ import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
+
+import cocom.leoch.sie.custom.oa.action.PartSyncToOAAction;
 
 public class BOMSentToSAPAction {
 	
@@ -118,7 +119,17 @@ public class BOMSentToSAPAction {
 				MessageBox.post(msg, "错误", MessageBox.ERROR);
 				return;
 			}
-			MessageBox.post("BOM发送SAP成功", "提示", MessageBox.INFORMATION);
+			String  oaMsg  = "";
+			if (partModels != null && partModels.size() != 0) {
+				PartSyncToOAAction synOA = new PartSyncToOAAction();
+				msg = synOA.sent(partModels);
+				if (!msg.isEmpty()) {
+					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					return;
+				}
+				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
+			}
+			MessageBox.post("BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (JCoException | TCException | IOException e) {
 			e.printStackTrace();
 			log.error(e);
