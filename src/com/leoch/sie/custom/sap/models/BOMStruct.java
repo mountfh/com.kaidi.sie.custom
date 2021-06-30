@@ -26,6 +26,8 @@ public class BOMStruct {
 	
 	Map<String, BOMInfoModel> info;
 	
+	Map<String,BOPInfoModel> BOPinfo;
+	
 	String msg;
 	
 	private String ecnNo = null;
@@ -81,9 +83,59 @@ public class BOMStruct {
 				throw new TCException(rev.toString() + " 发送结构管理器失败");
 			}
 			loadModel(topLine, 0);
-		}
-		
+		}		
 		return msg;		
+	}
+	
+	public String loadBOP() throws Exception{
+		
+		TCComponentRevisionRule rule = RevisionRule.RULE;
+		if (rule == null) {
+			throw new TCException("获取版本规则(Latest Rev Any Status)失败,无法解析BOM！");
+		}
+		TCComponentBOMWindowType type = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
+		window = type.create(rule);
+		msg = "";
+		BOPinfo = new LinkedHashMap<String, BOPInfoModel>();
+		for (int i = 0; i < revs.size(); i++) {
+			TCComponentItemRevision rev = revs.get(i);
+			boolean isSentSap = rev.getLogicalProperty(BOMSentSAPFlag);
+			if (ecnNo == null  && isSentSap) {
+				continue;
+			}
+			TCComponentItem item = rev.getItem();
+			TCComponentBOMLine topLine = window.setWindowTopLine(item, rev, null, null);
+			if (topLine == null) {
+				throw new TCException(rev.toString() + " 发送结构管理器失败");
+			}
+			loadBOPModel(topLine, 0);
+		}		
+		return msg;
+	}
+	
+	/**加载所有工艺表信息
+	 * @param topLine
+	 * @param level
+	 * @throws Exception 
+	 */
+	public void loadBOPModel(TCComponentBOMLine topLine, int level) throws Exception {
+		AIFComponentContext[] subLines = unpackBOMLine(topLine);
+		TCComponentItemRevision rev = topLine.getItemRevision();
+		boolean isSentSap = rev.getLogicalProperty(BOMSentSAPFlag);
+		if(isSentSap) {}
+		String id = rev.getProperty("item_id");
+		if (subLines != null && subLines.length > 0) {
+//			BOPInfoModel model = new BOPInfoModel();
+			if (ecnNo != null && !isSentSap) { //是否变更
+				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+				msg += model.load();
+				BOPinfo.put(id, model);
+			}else if(ecnNo == null && !isSentSap){
+				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+				msg += model.load();
+				BOPinfo.put(id, model);
+			}
+		}
 	}
 		
 	/**
@@ -142,8 +194,7 @@ public class BOMStruct {
 					}
 				}
 			}
-		}
-		
+		}		
 	}
 	
 	/**
@@ -183,6 +234,10 @@ public class BOMStruct {
 	    
 	public Map<String, BOMInfoModel> getBOMInfo(){
 		return info;
+	}
+	
+	public Map<String, BOPInfoModel> getBOPInfo(){
+		return BOPinfo;
 	}
 		
 	/**
