@@ -31,11 +31,11 @@ public class BOPSentToSapHandler extends AbstractHandler{
 
 		TCComponentTask task = (TCComponentTask) tcc;
 		try {
-			boolean checked = RuleCheck.check("BOM", task);
-			if (!checked) {
-				MessageBox.post("当前任务不适用工艺表传SAP功能", "提示", MessageBox.INFORMATION);
-				return null;
-			}
+//			boolean checked = RuleCheck.check("BOM", task);
+//			if (!checked) {
+//				MessageBox.post("当前任务不适用工艺表传SAP功能", "提示", MessageBox.INFORMATION);
+//				return null;
+//			}
 			List<TCComponentItemRevision> revs = new ArrayList<>();
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			for (int i = 0; i < targets.length; i++) {
@@ -43,13 +43,13 @@ public class BOPSentToSapHandler extends AbstractHandler{
 				if (target instanceof TCComponentItemRevision) {
 					TCComponentItemRevision part = (TCComponentItemRevision) target;
 					String part_type = part.getType();
-					if (part_type.endsWith("PartRevision")) {
+					if (part_type.endsWith("GYRevision")) {
 						revs.add(part);
 					}
 				}
 			}
 			if (revs == null || revs.size() == 0) {
-				MessageBox.post("任务目标下没有物料！", "提示", MessageBox.INFORMATION);
+				MessageBox.post("任务目标下的物料没有关联工艺对象！", "提示", MessageBox.INFORMATION);
 				return null;
 			}
 //			BOMSentToSAPAction action = new BOMSentToSAPAction(revs);
