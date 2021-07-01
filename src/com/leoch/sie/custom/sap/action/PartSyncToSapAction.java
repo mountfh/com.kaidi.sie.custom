@@ -80,9 +80,10 @@ public class PartSyncToSapAction {
 			if (target instanceof TCComponentItemRevision) {
 				TCComponentItemRevision part = (TCComponentItemRevision) target;
 				String part_type = part.getType();
+				String revsionId = part.getProperty("item_revision_id");
 				String sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
 				if (part_type.endsWith("PartRevision")) {
-					if( isNew  && sentToSAP.equals("true")) {continue;}
+					if( isNew  && sentToSAP.contains(revsionId)) {continue;}
 					PartModel model = new PartModel(part);
 					msg += model.load();
 					models.add(model);
@@ -99,13 +100,14 @@ public class PartSyncToSapAction {
 			MessageBox.post("任务目标下没有需要同步SAP与OA的物料！", "提示", MessageBox.INFORMATION);
 			return;
 		}
-		PartSyncToOAAction synOA = new PartSyncToOAAction();
-		msg = synOA.sent(models);
+		
+		msg = sent(models, ids);
 		if (!msg.isEmpty()) {
 			MessageBox.post(msg, "错误", MessageBox.ERROR);
 			return;
 		}
-		msg = sent(models, ids);
+		PartSyncToOAAction synOA = new PartSyncToOAAction();
+		msg = synOA.sent(models);
 		if (!msg.isEmpty()) {
 			MessageBox.post(msg, "错误", MessageBox.ERROR);
 			return;

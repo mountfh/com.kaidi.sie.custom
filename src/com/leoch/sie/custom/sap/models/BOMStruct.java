@@ -171,10 +171,11 @@ public class BOMStruct {
 					model.setLevel(l);
 				}
 			}
-			
-			for (int i = 0; i < subLines.length; i++) {
-				TCComponentBOMLine subLine = (TCComponentBOMLine) subLines[i].getComponent();
-				loadModel(subLine, level + 1);
+			if(ecnNo == null) {
+				for (int i = 0; i < subLines.length; i++) {
+					TCComponentBOMLine subLine = (TCComponentBOMLine) subLines[i].getComponent();
+					loadModel(subLine, level + 1);
+				}
 			}
 		} else {
 			boolean flag = Part.isBOM(rev);
