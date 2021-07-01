@@ -26,7 +26,7 @@ public class BOMLineModel {
 	public static int MEINS_L = 3; // 组件计量单位长度
 	
 	public static String AUSCH = "AUSCH"; // 部件废品率(非必填)(子件损耗率)
-	public static int AUSCH_L = 3; 
+	public static int AUSCH_L = 5; 
 	
 	public static String SANKA = "SANKA"; // 与成本相关(默认为X，虚拟件/客供料不填，由工程师选填；Z004不填)
 	public static int SANKA_L = 1; 
@@ -90,10 +90,10 @@ public class BOMLineModel {
 		
 		msg += Part.ckeckBySAP(rev, bomLineId);
 		
-		String isSentSAP = rev.getProperty(PartModel.PartSentSAPFlag);
-		if (!isSentSAP.equals("true")) {
-			msg += bomLineId + "物料未同步SAP\n";
-		}
+//		String isSentSAP = rev.getProperty(PartModel.PartSentSAPFlag);
+//		if (!isSentSAP.equals("true")) {
+//			msg += bomLineId + "物料未同步SAP\n";
+//		}
 		info.put(POSTP, "L"); // 项目类别（物料单）,默认值为L
 		if (bomLineId.length() > IDNRK_L) {
 			msg += bomLineId + "物料编码长度不能超过" + IDNRK_L + "\n";

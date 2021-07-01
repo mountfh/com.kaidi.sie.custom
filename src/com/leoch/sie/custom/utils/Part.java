@@ -31,9 +31,9 @@ public class Part {
 	}
 	
 	public static String ckeckBySAP(TCComponentItemRevision tcc, String id) throws TCException {		
-		
+		String revsionId = tcc.getProperty("item_revision_id");
 		String status = tcc.getProperty(PartModel.PartSentSAPFlag);
-		if (!status.equals("true")) {
+		if (!status.contains(revsionId)) {
 			return id + "的物料没有发送过SAP。\n";
 		}
 		return "";

@@ -64,11 +64,11 @@ public class PartModel {
 	public static int NORMT_L = 18;  //内部订单 CHAR 18
 	public static int FERTH_L = 18;  //模穴 CHAR 18
 	public static int GRUN_L  = 300;  //物料长描述 CHAR 300
-	public static int ZVALUE1_L = 40;  //预留字段1 CHAR 20
-	public static int ZVALUE2_L = 40;  //预留字段2 CHAR 20
-	public static int ZVALUE3_L = 40;  //预留字段3 CHAR 20
-	public static int ZVALUE4_L = 40;  //预留字段4 CHAR 20
-	public static int ZVALUE5_L = 40;  //预留字段5 CHAR 20
+	public static int ZVALUE1_L = 20;  //预留字段1 CHAR 20
+	public static int ZVALUE2_L = 20;  //预留字段2 CHAR 20
+	public static int ZVALUE3_L = 20;  //预留字段3 CHAR 20
+	public static int ZVALUE4_L = 20;  //预留字段4 CHAR 20
+	public static int ZVALUE5_L = 20;  //预留字段5 CHAR 20
 	public static int WERKS_L   = 4; //工厂（传SAP，多工厂用':'隔开） CHAR 4
 	public static int BESKZ_L   = 1; //采购类型 CHAR 1
 	public static int SOBSL_L   = 2; //特殊采购类 CHAR 2
@@ -216,8 +216,10 @@ public class PartModel {
 				msg += id + " 的物料状态不能为空\n";
 			}else if(status.indexOf(":") >0)  {
 				status = status.substring(0,status.indexOf(":"));
-			}else if(status.indexOf("有效") >0)  {
+			}else if(status.contains("有效"))  {
 				status = " ";
+			}else {
+				status = "99";
 			}
 			if (status.length() > MSTAE_L) {
 				msg += id + " 的物料状态长度不能超过" + MSTAE_L + "\n";
@@ -356,7 +358,9 @@ public class PartModel {
 	@SuppressWarnings("deprecation")
 	public void setSentSAPFlag() throws TCException {
 //		session.getUserService().call("avicit_call_bypass", new Object[] { 1 });
-		part.setProperty(PartSentSAPFlag, "true");
+		String revsionId = part.getProperty("item_revision_id");
+		String flag = part.getProperty(PartSentSAPFlag);
+		part.setProperty(PartSentSAPFlag, flag+revsionId);
 //		session.getUserService().call("avicit_call_bypass", new Object[] { 0 });
 	}
 }

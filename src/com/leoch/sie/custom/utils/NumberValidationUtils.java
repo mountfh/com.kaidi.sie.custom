@@ -58,5 +58,10 @@ public class NumberValidationUtils {
 	public static boolean isQuantityNumber1(String orginal) {
 		return isMatch("^[-+]{0,1}[0-9]{1,10}?(.[0-9]{1,3})?$", orginal);
 	}
+	
+	// 小数点前1-6位，小数点后1-7位的小数
+	public static boolean isQuantityNumber2(String orginal) {
+		return isMatch("^[-+]{0,1}[0-9]{1,6}?(.[0-9]{1,7})?$", orginal);
+	}
 
 }
