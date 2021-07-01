@@ -93,14 +93,25 @@ public class ECNSentToSapAction {
 				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
-			
+			//发送物料
 			PartSyncToSapAction action = new PartSyncToSapAction(log);
 			msg = action.sent(partModels, ids);
 			if (!msg.isEmpty()) {
 				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
-			
+			//发OA
+			String  oaMsg  = "";
+			if (partModels != null && partModels.size() != 0) {
+				PartSyncToOAAction synOA = new PartSyncToOAAction();
+				msg = synOA.sent(partModels);
+				if (!msg.isEmpty()) {
+					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					return;
+				}
+				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
+			}
+			//发ECN
 			ECNModel model = new ECNModel(ecn, session, solus);
 			msg = model.load();
 			if (!msg.isEmpty()) {
@@ -113,18 +124,8 @@ public class ECNSentToSapAction {
 				MessageBox.post(msg, "错误", MessageBox.ERROR);
 				return;
 			}
-			MessageBox.post("ECN同步SAP成功", "提示", MessageBox.INFORMATION);
-			String  oaMsg  = "";
-			if (partModels != null && partModels.size() != 0) {
-				PartSyncToOAAction synOA = new PartSyncToOAAction();
-				msg = synOA.sent(partModels);
-				if (!msg.isEmpty()) {
-					MessageBox.post(msg, "错误", MessageBox.ERROR);
-					return;
-				}
-				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
-			}
-			MessageBox.post("BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
+		
+			MessageBox.post("ECN同步SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();
@@ -198,14 +199,14 @@ public class ECNSentToSapAction {
 			JCoStructure headTable = bom_function.getImportParameterList().getStructure(input_BOM_HDR);
 			Map<String, Object> values = model.getModel();
 			Set<String> keys = values.keySet();
+			String info = "";
 			for (String key : keys) {
-				System.out.println("headTable:"  + key + "=" + values.get(key));
+				info += key + "=" + values.get(key) + "\n";
 				headTable.setValue(key, values.get(key));
 			}
 			values = bomInfo.getModel();
-			keys = values.keySet();
-			String info = "";
 			String topID = values.get("MATNR") + ":";
+			keys = values.keySet();
 			for (String key : keys) {
 				info += key + "=" + values.get(key) + "\n";
 				headTable.setValue(key, values.get(key));
@@ -230,14 +231,14 @@ public class ECNSentToSapAction {
 			JCoStructure tableParams = bom_function.getExportParameterList().getStructure(export_Table);
 
 			String type = 	tableParams.getString("STA");
-			String message = tableParams.getString("MESSAGE");			
-			msg += message+ "\n";
+			String message = tableParams.getString("MESSAGE");	
+//			msg += topID +message+ "\n";
 			if ("S".equals(type)) {
 				bomInfo.setSentSAPFlag();
 				log.info(topID + message);
 			} else {
-				log.error(msg);
-				return msg;
+				log.error("SAP ERROR:"+ topID+message);
+				return "SAP ERROR:"+ topID+message;
 			}
 		}
 		model.setSentSAPFlag();

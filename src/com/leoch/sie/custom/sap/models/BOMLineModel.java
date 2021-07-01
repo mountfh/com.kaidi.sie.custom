@@ -26,7 +26,7 @@ public class BOMLineModel {
 	public static int MEINS_L = 3; // 组件计量单位长度
 	
 	public static String AUSCH = "AUSCH"; // 部件废品率(非必填)(子件损耗率)
-	public static int AUSCH_L = 3; 
+	public static int AUSCH_L = 5; 
 	
 	public static String SANKA = "SANKA"; // 与成本相关(默认为X，虚拟件/客供料不填，由工程师选填；Z004不填)
 	public static int SANKA_L = 1; 
