@@ -99,7 +99,7 @@ public class BOMLineModel {
 			msg += bomLineId + "物料编码长度不能超过" + IDNRK_L + "\n";
 		}
 		info.put(IDNRK, bomLineId); // 物料号
-		String symbol = bomLine.getProperty("bl_occ_k8_Symbol");
+		String symbol = bomLine.getProperty("K8_Symbol");
 		if(symbol.isEmpty() || symbol.equals("+")) {
 			info.put(MENGE, quantity); // 组件数量
 		}else {
@@ -119,13 +119,13 @@ public class BOMLineModel {
 		}
 		info.put(MEINS, unit);
 		
-		String ausch = bomLine.getProperty("bl_occ_k8_Sub_component"); // 子件损耗率
+		String ausch = bomLine.getProperty("K8_Sub component"); // 子件损耗率
 		if (ausch.length() > AUSCH_L) {
 			msg += bomLineId + "子件损耗率长度不能超过" + AUSCH_L + "\n";
 		}
 		info.put(AUSCH, ausch);
 
-		String sanka = bomLine.getProperty("bl_occ_k8_Sanka"); // 与成本相关
+		String sanka = bomLine.getProperty("K8_Sanka"); // 与成本相关
 		if(sanka.isEmpty() || sanka.trim().equals("")) {
 			sanka = "X";
 		}
@@ -134,7 +134,7 @@ public class BOMLineModel {
 		}
 		info.put(SANKA, sanka);
 	
-		String lgort = bomLine.getProperty("bl_occ_k8_Lgort"); // 投料库存地点
+		String lgort = bomLine.getProperty("K8_Lgort"); // 投料库存地点
 		if (lgort.length() > LGORT_L) {
 			msg += bomLineId + "投料库存地点长度不能超过" + LGORT_L + "\n";
 		}

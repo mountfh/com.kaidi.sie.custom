@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.leoch.sie.custom.sap.models.BOMInfoModel;
-import com.leoch.sie.custom.sap.models.BOMLineModel;
 import com.leoch.sie.custom.sap.models.BOMStruct;
 import com.leoch.sie.custom.sap.models.BOPInfoModel;
 import com.leoch.sie.custom.sap.models.BOPLineModel;
@@ -27,12 +25,11 @@ import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
 
-public class BOPSentToSapAction {
+public class BOPChangeSentToSAPAction {
 
-	List<TCComponentItemRevision> revs;
+	private List<TCComponentItemRevision> revs;
+	private String ecn_no;
 	TCSession session;
-	
-//	public static String functionName = "ZFUNC_001";
 	
 	public static String functionName = "ZFUNC_003";
 	
@@ -42,13 +39,10 @@ public class BOPSentToSapAction {
 	
 	public static String export_Table = "E_OUTPUT";
 	
-	/**
-	 * 	     
-	 * @param revs 任务目标下发送SAP的物料版本
-	 */
-		    
-	public BOPSentToSapAction(List<TCComponentItemRevision> revs) {
+	
+	public BOPChangeSentToSAPAction(List<TCComponentItemRevision> revs,String ecn_no) {
 		this.revs = revs;
+		this.ecn_no = ecn_no;
 	}
 	
 	public void excute() {
@@ -56,7 +50,7 @@ public class BOPSentToSapAction {
 		try {
 			session = (TCSession) AIFUtility.getDefaultSession();
 			String msg = "";
-			BOMStruct struct = new BOMStruct(revs, session); 
+			BOMStruct struct = new BOMStruct(revs, session,ecn_no); 
 //			BOMStruct struct = new BOMStruct(revs, session); // 不带ecnNO参数时，为BOM新增
 			msg = struct.loadBOP();
 			struct.close();
@@ -147,4 +141,5 @@ public class BOPSentToSapAction {
 		}
 		return msg;
 	}
+	
 }
