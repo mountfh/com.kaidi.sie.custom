@@ -134,6 +134,10 @@ public class BOMStruct {
 				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
 				msg += model.load();
 				BOPinfo.put(id, model);
+			}else {
+				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+				msg += model.load();
+				BOPinfo.put(id, model);
 			}
 		}
 	}
