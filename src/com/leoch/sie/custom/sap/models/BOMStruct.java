@@ -126,19 +126,22 @@ public class BOMStruct {
 		String id = rev.getProperty("item_id");
 		if (subLines != null && subLines.length > 0) {
 //			BOPInfoModel model = new BOPInfoModel();
-			if (ecnNo != null && !isSentSap) { //是否变更
-				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
-				msg += model.load();
-				BOPinfo.put(id, model);
-			}else if(ecnNo == null && !isSentSap){
-				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
-				msg += model.load();
-				BOPinfo.put(id, model);
-			}else {
-				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
-				msg += model.load();
-				BOPinfo.put(id, model);
-			}
+//			if (ecnNo != null && !isSentSap) { //是否变更
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}else if(ecnNo == null && !isSentSap){
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}else {
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}
+			BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+			msg += model.load();
+			BOPinfo.put(id, model);
 		}
 	}
 		
