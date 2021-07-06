@@ -32,9 +32,9 @@ public class BOPSentToSapAction {
 	List<TCComponentItemRevision> revs;
 	TCSession session;
 	
-//	public static String functionName = "ZFUNC_001";
+	public static String functionName = "ZFUNC_001";
 	
-	public static String functionName = "ZFUNC_003";
+//	public static String functionName = "ZFUNC_003";
 	
 	public static String input_BOM_HDR = "I_INPUT";
 	
@@ -57,7 +57,6 @@ public class BOPSentToSapAction {
 			session = (TCSession) AIFUtility.getDefaultSession();
 			String msg = "";
 			BOMStruct struct = new BOMStruct(revs, session); 
-//			BOMStruct struct = new BOMStruct(revs, session); // 不带ecnNO参数时，为BOM新增
 			msg = struct.loadBOP();
 			struct.close();
 			if (!msg.isEmpty()) {
@@ -67,7 +66,7 @@ public class BOPSentToSapAction {
 			}
 			Map<String, BOPInfoModel> models = struct.getBOPInfo();
 			if (models.size() == 0) {
-				MessageBox.post("任务目标下没有需要同步SAP的BOM！", "提示", MessageBox.INFORMATION);
+				MessageBox.post("任务目标下没有需要同步SAP的工艺表！", "提示", MessageBox.INFORMATION);
 				return;
 			}
 			msg = sent(models);
@@ -91,10 +90,10 @@ public class BOPSentToSapAction {
 		Collection<BOPInfoModel> list = models.values();
 		List<BOPInfoModel> bomInfos = new ArrayList<>();
 		bomInfos.addAll(list);
-		if (bomInfos.size() > 0) {
-			System.out.println(bomInfos.size());
-			Collections.sort(bomInfos, new Sort());
-		}
+//		if (bomInfos.size() > 0) {
+//			System.out.println(bomInfos.size());
+//			Collections.sort(bomInfos, new Sort());
+//		}
 		for (BOPInfoModel bomInfo : bomInfos) {
 			Map<String, Object> values = bomInfo.getModel();
 			JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
