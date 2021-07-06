@@ -7,6 +7,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import com.leoch.sie.custom.sap.action.BOPChangeSentToSAPAction;
 import com.leoch.sie.custom.sap.action.BOPSentToSapAction;
 import com.leoch.sie.custom.sap.action.ECNSentToSapAction;
 import com.leoch.sie.custom.sap.models.ECNModel;
@@ -35,18 +36,18 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 
 		TCComponentTask task = (TCComponentTask) tcc;
 		try {
-//			boolean checked = RuleCheck.check("ECN", task);
-//			if (!checked) {
-//				MessageBox.post("当前任务不适用于BOM变更传SAP功能", "提示", MessageBox.INFORMATION);
-//				return null;
-//			}
+			boolean checked = RuleCheck.check("EC", task);
+			if (!checked) {
+				MessageBox.post("当前任务不适用于BOM变更传SAP功能", "提示", MessageBox.INFORMATION);
+				return null;
+			}
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			TCComponentItem ecn = null;
 			List<TCComponentItemRevision> solus = new ArrayList<>();
 			for (int i = 0; i < targets.length; i++) {
 				TCComponent target = targets[i];
 				String type = target.getType();
-				if (!"K8_ECN".equals(type)) {
+				if (!"K8_EC".equals(type)) {
 					continue;
 				}
 				ecn = (TCComponentItem) target;
@@ -58,7 +59,7 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 					if (rev[j] instanceof TCComponentItemRevision) {
 						TCComponentItemRevision part = (TCComponentItemRevision) rev[j];
 						String part_type = part.getType();
-						if (part_type.endsWith("PartRevision")) {
+						if (part_type.endsWith("GYRevision")) {
 							solus.add(part);
 						}
 					}
@@ -69,22 +70,37 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 				MessageBox.post("任务目标下的没有ECN", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			boolean flag = ecn.getLogicalProperty(ECNModel.ECNSentSAPFlag);
+			String ecn_no = ecn.getProperty("item_id");
+//			boolean flag = ecn.getLogicalProperty(ECNModel.ECNSentSAPFlag);
 //			flag = false;
-			if (flag) {
-				MessageBox.post("变更信息已同步SAP！", "提示", MessageBox.INFORMATION);
-				return null;
-			}
+//			if (flag) {
+//				MessageBox.post("变更信息已同步SAP！", "提示", MessageBox.INFORMATION);
+//				return null;
+//			}
 			if (solus.size() == 0) {
-				TCSession session = (TCSession) AIFUtility.getDefaultSession();
+				TCSession session = (TCSession) AIFUtility.getDefaultSession();			
 //				session.getUserService().call("avicit_call_bypass", new Object[] { 1 });
 				ecn.setLogicalProperty(ECNModel.ECNSentSAPFlag, true);
 //				session.getUserService().call("avicit_call_bypass", new Object[] { 0 });
 				MessageBox.post("ECN中没有要同步SAP的工艺信息", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			ECNSentToSapAction action = new ECNSentToSapAction(ecn, solus);
-			action.excute();			
+			String msg = "";
+			String temp = null;
+			for (int i = 0; i < solus.size(); i++) {
+				solus.get(i).refresh();
+				temp = solus.get(i).getProperty("k8_MATNR2");
+				if(temp.equals("")) {
+					temp = solus.get(i).getProperty("object_name");
+					msg += temp+":没有关联物料！"+"\n";
+				}
+			}
+			if(!msg.equals("")) {
+				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+			}else {
+				BOPChangeSentToSAPAction action = new BOPChangeSentToSAPAction(solus, ecn_no);
+				action.excute();
+			}			
 		} catch (TCException exp) {
 			MessageBox.post(exp);
 			exp.printStackTrace();

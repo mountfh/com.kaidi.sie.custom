@@ -10,10 +10,22 @@
       <command name="工艺表同步SAP" id="BOPSentToSap" />
       <command name="工艺表变更同步SAP" id="BOPChangeSentToSap" />
       
-      
+      <command name="获取OA变更通知单" id="GetECChange" />
+      <command name="获取OA变更申请单" id="GetECRequest" />
+      <command name="同步EC数据到OA" id="SendECMsg" />      
    </extension>
    <extension point="org.eclipse.ui.handlers">
    
+      <handler commandId="GetECChange"
+            class="com.ec.custom.handlers.GetECChangeHandlers">
+      </handler>
+      <handler commandId="GetECRequest"
+            class="com.ec.custom.handlers.GetECRequestHandlers">
+      </handler>
+      <handler commandId="SendECMsg"
+            class="com.ec.custom.handlers.SendECMsgHandlers">
+      </handler>
+      
       <handler commandId="BOPChangeSentToSap"
             class="com.leoch.sie.custom.sap.handlers.BOPChangeSentToSapHandler">
       </handler>
@@ -55,8 +67,12 @@
             <command commandId="BOMSentToSap" id="BOMSentToSap" />
             <command commandId="ECNSentToSap" id="ECNSentToSap" />
             <command commandId="BOPSentToSap" id="BOPSentToSap" />
-            <command commandId="BOPChangeSentToSap" id="BOPChangeSentToSap" />
-            
+            <command commandId="BOPChangeSentToSap" id="BOPChangeSentToSap" />          
+         </menu>
+          <menu label="EC变更菜单" id="com.leoch.sie.custom.sap.menus.SyncERP1">
+            <command commandId="GetECChange" id="GetECChange" />
+            <command commandId="GetECRequest" id="GetECRequest" />
+            <command commandId="SendECMsg" id="SendECMsg" />          
          </menu>
       </menuContribution>
       
