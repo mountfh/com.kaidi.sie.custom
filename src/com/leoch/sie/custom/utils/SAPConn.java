@@ -92,9 +92,20 @@ public class SAPConn {
     			copyFile(is, fos);
 			}
     		if (isTest) {
-				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
+  			
+//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
+
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
+
+//				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
 			} else {
+
 				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
+
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
+//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
+//				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
+
 			}
     		sapjco3 = new File(PATH + DLL_FULL_NAME);
     		if (!sapjco3.exists()) {

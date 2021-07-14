@@ -10,10 +10,26 @@
       <command name="工艺表同步SAP" id="BOPSentToSap" />
       <command name="工艺表变更同步SAP" id="BOPChangeSentToSap" />
       
-      
+      <command name="获取OA变更表单" id="GetECChange" />
+      <command name="获取OA变更表单" id="GetECRequest" />
+      <command name="同步EC数据到OA" id="SendECMsg" />    
+      <command name="指派审核人" id="MyAssignTask" />   
    </extension>
    <extension point="org.eclipse.ui.handlers">
    
+     <handler commandId="MyAssignTask"
+            class="com.ec.custom.handlers.MyAssignTaskHandler">
+      </handler>
+      <handler commandId="GetECChange"
+            class="com.ec.custom.handlers.GetECChangeHandlers">
+      </handler>
+      <handler commandId="GetECRequest"
+            class="com.ec.custom.handlers.GetECRequestHandlers">
+      </handler>
+      <handler commandId="SendECMsg"
+            class="com.ec.custom.handlers.SendECMsgHandlers">
+      </handler>
+      
       <handler commandId="BOPChangeSentToSap"
             class="com.leoch.sie.custom.sap.handlers.BOPChangeSentToSapHandler">
       </handler>
@@ -55,53 +71,35 @@
             <command commandId="BOMSentToSap" id="BOMSentToSap" />
             <command commandId="ECNSentToSap" id="ECNSentToSap" />
             <command commandId="BOPSentToSap" id="BOPSentToSap" />
-            <command commandId="BOPChangeSentToSap" id="BOPChangeSentToSap" />
-            
+            <command commandId="BOPChangeSentToSap" id="BOPChangeSentToSap" />          
          </menu>
-      </menuContribution>
-      
-      <menuContribution 
-         locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-         <command
-            commandId="SetMailRead"
-            id="SetMailRead">
-            <visibleWhen>
-               <and>
-                  <reference
-                         definitionId="com.teamcenter.rac.ui.inMainPerspective">
-                  </reference>
-				  <iterate ifEmpty="false">
-					 <adapt type="com.teamcenter.rac.kernel.TCComponent">
-						<test 
-								property="com.teamcenter.rac.kernel.TCComponent.typeClass" 
-								value="Envelope">
-					    </test>
-				     </adapt>
-				  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
+          <menu label="EC变更菜单" id="com.leoch.sie.custom.sap.menus.SyncERP1">
+            <command commandId="GetECChange" id="GetECChange" />
+           <!-- <command commandId="GetECRequest" id="GetECRequest" /> -->
+            <command commandId="SendECMsg" id="SendECMsg" />          
+         </menu>
          
-         <command
-            commandId="SetMailUnread"
-            id="SetMailUnread">
-            <visibleWhen>
+
+      </menuContribution>              
+   </extension>
+   
+    <extension
+         point="org.eclipse.ui.menus">
+	    <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+            <command commandId="MyAssignTask">
+			<visibleWhen>
                <and>
-                  <reference
-                         definitionId="com.teamcenter.rac.ui.inMainPerspective">
-                  </reference>
+                  <reference definitionId="com.teamcenter.rac.ui.inMainPerspective" />
                   <iterate ifEmpty="false">
-					 <adapt type="com.teamcenter.rac.kernel.TCComponent">
-						<test 
-								property="com.teamcenter.rac.kernel.TCComponent.typeClass" 
-								value="Envelope">
-					    </test>
-				     </adapt>
-				  </iterate>
+					<adapt type="com.teamcenter.rac.kernel.TCComponent">
+						<or>
+							<test property="com.teamcenter.rac.kernel.TCComponent.typeClass" value="EPMTask" />
+						</or>
+					</adapt>
+				</iterate>
                </and>
             </visibleWhen>
-         </command>
-      </menuContribution>
-           
-   </extension>
+         	</command>
+		</menuContribution>
+	</extension>
 </plugin>

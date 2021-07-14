@@ -9,6 +9,7 @@ import org.eclipse.core.commands.ExecutionException;
 
 import com.leoch.sie.custom.sap.action.PartSyncToSapAction;
 import com.leoch.sie.custom.sap.logs.ChangePartLog;
+import com.leoch.sie.custom.utils.Demo;
 import com.leoch.sie.custom.utils.RuleCheck;
 import com.sap.conn.jco.JCoException;
 import com.teamcenter.rac.aifrcp.AIFUtility;
@@ -20,6 +21,8 @@ import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.util.MessageBox;
 
 public class ChangePartToSapHandler extends AbstractHandler {
+	
+	public Demo demo;
 
 	private Logger log = ChangePartLog.logger;
 	@Override
@@ -37,10 +40,29 @@ public class ChangePartToSapHandler extends AbstractHandler {
 				MessageBox.post("当前任务不适用于物料变更传SAP功能", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
-			PartSyncToSapAction action = new PartSyncToSapAction(targets, false, log);					
-			action.excute();
-		} catch (TCException | JCoException | IOException e) {
+			final TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
+			demo = new Demo();
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					PartSyncToSapAction action = new PartSyncToSapAction(targets, false, log);
+					try {
+						
+						demo.start();
+						action.excute();
+						demo.close();
+						
+					} catch (TCException e) {
+						e.printStackTrace();
+					} catch (JCoException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+		} catch (TCException e) {
 			log.error(e.toString());
 			MessageBox.post(e);
 			e.printStackTrace();
