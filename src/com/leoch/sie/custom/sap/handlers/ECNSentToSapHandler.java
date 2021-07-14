@@ -9,6 +9,7 @@ import org.eclipse.core.commands.ExecutionException;
 
 import com.leoch.sie.custom.sap.action.ECNSentToSapAction;
 import com.leoch.sie.custom.sap.models.ECNModel;
+import com.leoch.sie.custom.utils.Demo;
 import com.leoch.sie.custom.utils.RuleCheck;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCAttachmentScope;
@@ -22,6 +23,8 @@ import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
 
 public class ECNSentToSapHandler extends AbstractHandler {
+	
+	public Demo demo;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -34,18 +37,18 @@ public class ECNSentToSapHandler extends AbstractHandler {
 
 		TCComponentTask task = (TCComponentTask) tcc;
 		try {
-			boolean checked = RuleCheck.check("ECN", task);
+			boolean checked = RuleCheck.check("EC", task);
 			if (!checked) {
 				MessageBox.post("当前任务不适用于BOM变更传SAP功能", "提示", MessageBox.INFORMATION);
 				return null;
 			}
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			TCComponentItem ecn = null;
-			List<TCComponentItemRevision> solus = new ArrayList<>();
+			final List<TCComponentItemRevision> solus = new ArrayList<>();
 			for (int i = 0; i < targets.length; i++) {
 				TCComponent target = targets[i];
 				String type = target.getType();
-				if (!"K8_ECN".equals(type)) {
+				if (!"K8_EC".equals(type)) {
 					continue;
 				}
 				ecn = (TCComponentItem) target;
@@ -82,8 +85,20 @@ public class ECNSentToSapHandler extends AbstractHandler {
 				MessageBox.post("ECN中没有同步SAP的信息", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			ECNSentToSapAction action = new ECNSentToSapAction(ecn, solus);
-			action.excute();
+			
+			demo = new Demo();
+			final ECNSentToSapAction action = new ECNSentToSapAction(ecn, solus);
+			
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					demo.start();
+					action.excute();
+					demo.close();
+				}
+			}).start();
+			
 			
 		} catch (TCException exp) {
 			MessageBox.post(exp);

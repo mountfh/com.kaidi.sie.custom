@@ -314,24 +314,38 @@ public class PartModel {
 			model.put(WERKS, werks);	// 工厂（传SAP，多工厂用':'隔开）	
 			
 			String beskz = part.getProperty("k8_procurement");
-			if (beskz.isEmpty()) {
-				msg += id + "的物料采购类型 不能为空\n";
-			}else if(beskz.indexOf(":") >0) {
-				beskz = beskz.substring(0,beskz.indexOf(":"));
-			}
-			if (beskz.length() > BESKZ_L) {
-				msg += id + " 的物料采购类型长度不能超过" + BESKZ_L + "\n";
-			}
-			model.put(BESKZ,beskz);	// 采购类型	
-			
+			int beskzle = beskz.indexOf(":");
 			String sobsl = part.getProperty("k8_special_procurement");
+			
 			if(sobsl.indexOf(":") >0) {
 				sobsl = sobsl.substring(0,sobsl.indexOf(":"));
+			}else if(beskzle >2) {
+				sobsl =  beskz.substring(1,beskz.indexOf(":"));
 			}
 			if (sobsl.length() > SOBSL_L) {
 				msg += id + " 的物料特殊采购类长度不能超过" + SOBSL_L + "\n";
 			}
 			model.put(SOBSL, sobsl);	// 特殊采购类	
+			
+//			if (beskz.isEmpty()) {
+//				msg += id + "的物料采购类型 不能为空\n";
+//			}else if(beskz.indexOf(":") >0) {
+//				beskz = beskz.substring(0,beskz.indexOf(":"));
+//			}
+			
+			if (beskz.isEmpty()) {
+				msg += id + "的物料采购类型 不能为空\n";
+			}else if(beskzle >0) {
+				beskz = beskz.substring(0,1);
+			}
+			
+			if (beskz.length() > BESKZ_L) {
+				msg += id + " 的物料采购类型长度不能超过" + BESKZ_L + "\n";
+			}
+			model.put(BESKZ,beskz);	// 采购类型	
+			
+			
+			
 			
 			String rgekz = part.getProperty("k8_recoil");
 			if(rgekz.indexOf(":") >0) {

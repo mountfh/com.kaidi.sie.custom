@@ -8,6 +8,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.leoch.sie.custom.sap.action.BOMSentToSAPAction;
+import com.leoch.sie.custom.utils.Demo;
 import com.leoch.sie.custom.utils.RuleCheck;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCAttachmentScope;
@@ -19,6 +20,8 @@ import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.util.MessageBox;
 
 public class BOMSentToSapHandler extends AbstractHandler{
+	
+	public Demo demo;
 
 	@Override
 	public Object execute(ExecutionEvent e) throws ExecutionException {
@@ -35,7 +38,7 @@ public class BOMSentToSapHandler extends AbstractHandler{
 				MessageBox.post("当前任务不适用于BOM新增传SAP功能", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			List<TCComponentItemRevision> revs = new ArrayList<>();
+			final List<TCComponentItemRevision> revs = new ArrayList<>();
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			for (int i = 0; i < targets.length; i++) {
 				TCComponent target = targets[i];
@@ -51,8 +54,18 @@ public class BOMSentToSapHandler extends AbstractHandler{
 				MessageBox.post("任务目标下没有物料！", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			BOMSentToSAPAction action = new BOMSentToSAPAction(revs);
-			action.excute();
+			demo = new Demo();
+			
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					BOMSentToSAPAction action = new BOMSentToSAPAction(revs);
+					demo.start();
+					action.excute();
+					demo.close();
+				}
+			}).start();
 			
 		} catch (TCException exp) {
 			MessageBox.post(exp);
