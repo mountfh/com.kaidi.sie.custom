@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.leoch.sie.custom.sap.models.PartModel;
-import com.leoch.sie.custom.utils.Demo;
 import com.leoch.sie.custom.utils.SAPConn;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
