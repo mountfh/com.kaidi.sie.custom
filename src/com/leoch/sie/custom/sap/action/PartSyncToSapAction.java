@@ -23,7 +23,7 @@ import com.teamcenter.rac.util.MessageBox;
 
 import cocom.leoch.sie.custom.oa.action.PartSyncToOAAction;
 
-public class PartSyncToSapAction {
+public class PartSyncToSapAction extends Thread{
 	
 	public static String functionName = "ZFUNC_002";
 	
@@ -38,6 +38,9 @@ public class PartSyncToSapAction {
 	private boolean isNew;
 
 	JCoRepository repository;
+	
+//	Demo demo = new Demo();
+	
 	
 	/**
 	 *
@@ -70,8 +73,7 @@ public class PartSyncToSapAction {
 	 * @return void    返回类型
 	 * @throws
 	 */
-		    
-	public void excute() throws TCException, JCoException, IOException  {
+	public void excute() throws TCException, JCoException, IOException   {
 		List<PartModel> models = new ArrayList<>();
 		String msg = "";
 		List<String> ids = new ArrayList<>();
@@ -91,6 +93,7 @@ public class PartSyncToSapAction {
 				}
 			}
 		}
+		
 		if (!msg.isEmpty()) {
 			MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 			return;
@@ -113,13 +116,16 @@ public class PartSyncToSapAction {
 			return;
 		}
 		if (isNew) {
+			for (int i = 0; i < models.size(); i++) {
+				PartModel model = models.get(i);
+				model.setSentSAPFlag();
+			}
 			MessageBox.post("物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
 		} else {
 			MessageBox.post("物料更新发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
 		}
 	
 	}
-	
 	/**
 	 * @Title: sent
 	 * @Description: 物料同步SAP
@@ -171,6 +177,7 @@ public class PartSyncToSapAction {
 		JCoStructure structure=function.getImportParameterList().getStructure("IS_INPUT");
 		
 		for (int i = 0; i < models.size(); i++) {
+			
 			PartModel model = models.get(i);
 			Map<String,Object> value = model.getModel();
 			Set<String> keys = value.keySet();
@@ -198,7 +205,7 @@ public class PartSyncToSapAction {
 				log.error(message);
 				msg += message + "\n";
 			} else {
-				model.setSentSAPFlag();
+//				model.setSentSAPFlag();
 				log.info(message);
 			}
 		}
