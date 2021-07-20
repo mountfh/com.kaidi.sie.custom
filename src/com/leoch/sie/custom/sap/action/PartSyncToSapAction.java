@@ -205,7 +205,8 @@ public class PartSyncToSapAction extends Thread{
 				log.error(message);
 				msg += message + "\n";
 			} else {
-//				model.setSentSAPFlag();
+				//…Ë÷√±Í ∂
+				model.setSentSAPFlag();
 				log.info(message);
 			}
 		}
