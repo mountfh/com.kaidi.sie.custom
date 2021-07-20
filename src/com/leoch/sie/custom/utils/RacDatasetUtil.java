@@ -82,7 +82,6 @@ public class RacDatasetUtil {
 	        }
 	        filesMap.put(fileName, ret);
 	        String info = fileName + " = " + datasetName;
-	        System.out.println(info);
 	      }
 	      return filesMap;
 	  }

@@ -35,15 +35,17 @@ public class ProjectReportMain {
 	private List<LinkedHashMap<String, String>> projectValueList;
 	private LinkedHashMap<String, String> projectValueMap;
 	private int count = 0;
+	private String path = null;
 	private String[] propetys = new String[] {"企画方针","商品化决定","出图","制造试作","仕样书","认证申请","认证取得","量产"};
 	
-	public  ProjectReportMain(Date date1,Date date2) throws Exception {
+	public  ProjectReportMain(Date date1,Date date2,String path) throws Exception {
+		this.path = path;
 		TCSession session = (TCSession) AIFUtility.getDefaultSession();	
 		session.setStatus("后台正在导出...");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd HH:mm");
 		String aftertime = sdf.format(date1);
 		String beforetime = sdf.format(date2);
-		projects = session.search("项目(开发用)", new String[] { "创建日期早于" ,"创建日期晚于"}, new String[] {beforetime,aftertime});
+		projects = session.search("Search Project", new String[] { "Before" ,"After"}, new String[] {beforetime,aftertime});
 	}
 	
 	public String excute() throws Exception {
@@ -63,6 +65,9 @@ public class ProjectReportMain {
 	}
 	
 	private void wirteExcel() throws IOException {
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("HHmm");
+		String datehm = sdf.format(new Date());
 		
 		LinkedHashMap<String, String> valueMap = new LinkedHashMap<String, String>();
 		InputStream is = this.getClass().getResourceAsStream("/resources/松下项目报表模板.xlsx");
@@ -91,11 +96,11 @@ public class ProjectReportMain {
 		}
 		setAutoWidth(sheet,27);
 		sheet.setColumnWidth(0, 1000);
-		String path = System.getProperty("user.home");
-		FileOutputStream fileOut = new FileOutputStream(path+"\\"+"项目报表.xlsx");
+//		String path = System.getProperty("user.home");
+		FileOutputStream fileOut = new FileOutputStream(path+"\\"+datehm+"项目报表.xlsx");
 		wb.write(fileOut);
 		fileOut.close();
-		File file = new File(path+"\\"+"项目报表.xlsx");
+		File file = new File(path+"\\"+datehm+"项目报表.xlsx");
 		Desktop.getDesktop().open(file);
 
 	}

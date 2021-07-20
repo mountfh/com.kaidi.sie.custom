@@ -8,7 +8,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.leoch.sie.custom.sap.action.BOMSentToSAPAction;
-import com.leoch.sie.custom.sap.action.ECMsgSentToOAAction;
 import com.leoch.sie.custom.sap.action.ECNSentToSapAction;
 import com.leoch.sie.custom.sap.models.ECNModel;
 import com.leoch.sie.custom.utils.RuleCheck;
@@ -22,6 +21,8 @@ import com.teamcenter.rac.kernel.TCComponentTask;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
+
+import cocom.leoch.sie.custom.oa.action.ECMsgSentToOAAction;
 
 public class SendECMsgHandlers extends AbstractHandler {
 
@@ -60,7 +61,7 @@ public class SendECMsgHandlers extends AbstractHandler {
 					if (soluRev[j] instanceof TCComponentItemRevision) {
 						TCComponentItemRevision part = (TCComponentItemRevision) soluRev[j];
 						String part_type = part.getType();
-						if (part_type.endsWith("PartRevision")||part_type.endsWith("AssemblyRevision")) {
+						if (part_type.endsWith("Revision")||part_type.endsWith("AssemblyRevision")) {
 							solus.add(part);
 						}
 					}
@@ -70,7 +71,7 @@ public class SendECMsgHandlers extends AbstractHandler {
 						if(problemRev[j] instanceof TCComponentItemRevision) {
 							TCComponentItemRevision part = (TCComponentItemRevision) problemRev[j];
 							String part_type = part.getType();
-							if (part_type.endsWith("PartRevision")||part_type.endsWith("AssemblyRevision")) {
+							if (part_type.endsWith("Revision")||part_type.endsWith("AssemblyRevision")) {
 								problems.add(part);
 							}
 						}
@@ -87,11 +88,17 @@ public class SendECMsgHandlers extends AbstractHandler {
 //				session.getUserService().call("avicit_call_bypass", new Object[] { 1 });
 				ecn.setLogicalProperty(ECNModel.ECNSentSAPFlag, true);
 //				session.getUserService().call("avicit_call_bypass", new Object[] { 0 });
-				MessageBox.post("ECN中没有同步SAP的信息", "提示", MessageBox.INFORMATION);
+				MessageBox.post("EC中没有同步SAP的信息", "提示", MessageBox.INFORMATION);
 				return null;
 			}
-			ECMsgSentToOAAction action = new ECMsgSentToOAAction(problems, solus);
-			action.excute();
+			 String oaid = ecn.getProperty("k8_OA");
+			 if(oaid.equals("")){
+				 MessageBox.post("EC没有流程单号，无法获取OA的归档附件，请先填写OA流程单号", "提示", MessageBox.INFORMATION);
+				 return null;
+			 }
+			ECMsgSentToOAAction action = new ECMsgSentToOAAction(ecn,problems, solus);
+			String msg=action.excute();
+			MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 		} catch (Exception exp) {
 			MessageBox.post(exp);
 			exp.printStackTrace();
