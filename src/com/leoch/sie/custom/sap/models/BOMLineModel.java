@@ -47,6 +47,8 @@ public class BOMLineModel {
 	
 	public static String EWAHR = "EWAHR"; // 使用可能性按 % (BTCI)(非必填)
 	
+//	public static String NUMBER = "NUMBER"; // 查找编号
+	
 	private Map<String, Object> info = null;
 	
 	String topLineId = null;
@@ -124,6 +126,14 @@ public class BOMLineModel {
 			msg += bomLineId + "子件损耗率长度不能超过" + AUSCH_L + "\n";
 		}
 		info.put(AUSCH, ausch);
+		
+		//判断查找编号是否正确
+		String number = bomLine.getProperty("bl_sequence_no"); // 查找编号
+		String numberlen = number.substring(number.length() -1,number.length());
+		if (!numberlen.equals("0")) {
+			System.out.println(numberlen);
+			msg += bomLineId + ":中的查找编号属性最后一位需为：0" + "\n";
+		}
 
 		String sanka = bomLine.getProperty("K8_Sanka"); // 与成本相关
 		if(sanka.isEmpty() || sanka.trim().equals("")) {

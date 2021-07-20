@@ -91,7 +91,7 @@ public class BOMSentToSAPAction {
 				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
-			
+			//发送物料
 			if (partModels != null && partModels.size() != 0) {
 				PartSyncToSapAction action = new PartSyncToSapAction(log);
 				msg = action.sent(partModels,ids);
