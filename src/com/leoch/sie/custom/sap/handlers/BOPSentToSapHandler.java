@@ -56,7 +56,7 @@ public class BOPSentToSapHandler extends AbstractHandler{
 			String temp = null;
 			for (int i = 0; i < revs.size(); i++) {
 				revs.get(i).refresh();
-				temp = revs.get(i).getProperty("k8_MATNR2");
+				 temp = revs.get(i).getProperty("k8_MATNR2");
 				if(temp.equals("")) {
 					temp = revs.get(i).getProperty("object_name");
 					msg += temp+":没有关联物料！"+"\n";

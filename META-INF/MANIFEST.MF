@@ -93,6 +93,8 @@ Export-Package: cocom.leoch.sie.custom.oa.action,
  xml
 Import-Package: com.teamcenter.rac.commonclient.date,
  com.teamcenter.rac.kernel,
+ com.teamcenter.services.rac.core,
+ com.teamcenter.services.rac.core._2008_06,
  com.teamcenter.services.rac.projectmanagement,
  com.teamcenter.services.rac.projectmanagement._2008_06,
  com.teamcenter.services.rac.projectmanagement._2011_06,

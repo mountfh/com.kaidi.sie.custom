@@ -6,17 +6,21 @@
       <command name="物料信息发送SAP" id="PartSentToSap" />
       <command name="物料ECN同步SAP" id="ChangePartToSap" />
       <command name="BOM同步SAP" id="BOMSentToSap" />
-      <command name="BOM ECN同步SAP" id="ECNSentToSap" />
-      <command name="工艺表同步SAP" id="BOPSentToSap" />
-      <command name="工艺表变更同步SAP" id="BOPChangeSentToSap" />
+      <command name="ECN同步SAP" id="ECNSentToSap" />
+      <command name="工艺表新建传送SAP" id="BOPSentToSap" />
+      <command name="工艺表变更传送SAP" id="BOPChangeSentToSap" />
       
       <command name="获取OA变更表单" id="GetECChange" />
       <command name="获取OA变更表单" id="GetECRequest" />
       <command name="同步EC数据到OA" id="SendECMsg" />    
       <command name="指派审核人" id="MyAssignTask" />   
+      <command name="导出项目报表" id="ImportProjectReport" /> 
    </extension>
    <extension point="org.eclipse.ui.handlers">
    
+        <handler commandId="ImportProjectReport"
+            class="com.leoch.sie.custom.sap.handlers.ImportProjectReportHandlers">
+      </handler>
      <handler commandId="MyAssignTask"
             class="com.ec.custom.handlers.MyAssignTaskHandler">
       </handler>
@@ -99,6 +103,8 @@
 				</iterate>
                </and>
             </visibleWhen>
+         	</command>
+         	<command commandId="ImportProjectReport">
          	</command>
 		</menuContribution>
 	</extension>

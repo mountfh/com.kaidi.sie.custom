@@ -10,14 +10,17 @@ import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentItem;
 import com.teamcenter.rac.kernel.TCComponentTask;
 import com.teamcenter.rac.kernel.TCException;
+import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
 
 import cocom.leoch.sie.custom.oa.action.GetOADocAction;
 
 public class GetECChangeHandlers extends AbstractHandler {
 
+	TCSession session;
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
+				
 		TCComponent tcc = (TCComponent) AIFUtility.getCurrentApplication().getTargetComponent();
 		if (!(tcc instanceof TCComponentTask)) {
 			MessageBox.post("请选择流程任务进行操作！", "提示", MessageBox.INFORMATION);
@@ -40,9 +43,16 @@ public class GetECChangeHandlers extends AbstractHandler {
 			ecn = (TCComponentItem) target;
 			break;
 		}
+		if(ecn==null){
+			MessageBox.post("流程目标下没有EC对象，无法根据EC的OA流程单号，获取附件", "提示", MessageBox.INFORMATION);
+			return null;
+		}
 		try {
 			String oaid = null;
-			oaid = ecn.getProperty("object_desc");
+			oaid = ecn.getProperty("k8_OA");
+			if(oaid.equals("")){
+				MessageBox.post("EC没有流程单号，无法获取OA的归档附件，请先填写OA流程单号", "提示", MessageBox.INFORMATION);
+			}
 			GetOADocAction action = new GetOADocAction();
 			String msg = action.sent(oaid,ecn);
 			MessageBox.post(msg, "提示", MessageBox.INFORMATION);

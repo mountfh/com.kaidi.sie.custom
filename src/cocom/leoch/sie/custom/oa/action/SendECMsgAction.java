@@ -18,9 +18,9 @@ import com.teamcenter.rac.kernel.TCSession;
 
 import net.sf.json.JSONObject;
 
-public class GetOADocAction {
-
-	private static String  url_address = "http://192.168.1.145:88/services/PlmDownloadService";  
+public class SendECMsgAction {
+	
+	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
 	private String processNum = ""; 
 	private TCSession session = null;
 	private TCComponentItem ecn = null;
@@ -61,7 +61,6 @@ public class GetOADocAction {
             }  
             
             //输出返回值
-//            System.out.println(sb.toString());
             String returnMSG = getReturn(sb.toString());
             if(returnMSG != null ){
             	msg += returnMSG;
@@ -70,21 +69,11 @@ public class GetOADocAction {
             isr.close();  
             br.close();
         }else {
-        	msg += "获取OA附件失败（没有获取到OA的网络连接）.";
+        	msg += "物料发送OA失败（没有获取到OA的网络连接）.";
         }  
         os.close();  
 		return msg;
 	}
-	 
-	 public String getProcessNum() {
-		return processNum;
-	}
-
-
-	public void setProcessNum(String processNum) {
-		this.processNum = processNum;
-	}
-
 
 	private String getReturn(String str) {
 			
@@ -119,7 +108,7 @@ public class GetOADocAction {
 			}
 	   }catch (Exception e) {
 		   System.out.println(e.toString());
-		   return e.toString()+","+responseMsg;
+		   return "物料发送OA失败(OA的返回结果无法转JSON格式！)."+responseMsg;
 	   }
 	}
 	
@@ -132,11 +121,8 @@ public class GetOADocAction {
 			if(file.exists()){
 				docname = file.getName();
 				dataset =MyDatasetUtil.createDateset(docname, file, session);
-				ecn.add("K8_ECRlist", dataset);
-			}else{
-				throw new Exception("OA的上传文件不存在！");
 			}
-
+			ecn.add("K8_ECRlist", dataset);
 		}
 	}
 	
@@ -145,7 +131,7 @@ public class GetOADocAction {
 				  +"\"requestid\": \""+oaid+"\""+ 	          //<!-OA流程ID-->
 				"}";
 		 return info;	
-	    }  
+	}  
 	 
 	    public String getXML(String xml){  
 	    	String soapXML = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:web=\"webservices.createworkflow.weaver.com.cn\">"  
