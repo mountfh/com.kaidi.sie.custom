@@ -1,21 +1,15 @@
 package com.ec.custom.handlers;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
-import com.teamcenter.rac.aif.kernel.AIFComponentContext;
-import com.teamcenter.rac.aif.kernel.InterfaceAIFComponent;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCAttachmentScope;
 import com.teamcenter.rac.kernel.TCAttachmentType;
 import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentItem;
-import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCComponentTask;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.util.MessageBox;

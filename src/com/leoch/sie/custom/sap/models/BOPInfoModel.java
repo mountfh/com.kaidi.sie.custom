@@ -82,10 +82,7 @@ public class BOPInfoModel {
 			bomInfo.put("PLNNR", k8_PLNNR);
 			String k8_PLNAL = rev.getProperty("k8_PLNAL");
 			bomInfo.put("PLNAL", k8_PLNAL);
-		}		
-		
-//		String k8_PLNNR = rev.getProperty("k8_PLNNR");
-//		bomInfo.put("PLNNR", k8_PLNNR);
+		}				
 		
 		String object_desc = rev.getProperty("object_name");
 		bomInfo.put(KTEXT, object_desc);
@@ -100,15 +97,11 @@ public class BOPInfoModel {
 		bomInfo.put(STATU, k8_STATU);
 		
 		String k8_LOSVN = rev.getProperty("k8LOSVN2");
-//		if(k8_LOSVN.contains(".0")) {
-//			k8_LOSVN = k8_LOSVN.split(".0");
-//		}
+
 		bomInfo.put(LOSVN, k8_LOSVN);
 		
 		String k8_LOSBS = rev.getProperty("k8_LOSBS2");
-//		if(k8_LOSBS.contains(".0")) {
-//			k8_LOSBS = k8_LOSBS.split(".0")[0];
-//		}
+
 		bomInfo.put(LOSBS, k8_LOSBS);
 		
 		String k8_PLNME = rev.getProperty("k8_PLNME");
