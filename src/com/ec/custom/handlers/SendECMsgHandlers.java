@@ -1,6 +1,7 @@
 package com.ec.custom.handlers;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -36,11 +37,11 @@ public class SendECMsgHandlers extends AbstractHandler {
 
 		TCComponentTask task = (TCComponentTask) tcc;
 		try {
-//			boolean checked = RuleCheck.check("ECN", task);
-//			if (!checked) {
-//				MessageBox.post("当前任务不适用于EC变更信息传OA功能", "提示", MessageBox.INFORMATION);
-//				return null;
-//			}
+			boolean checked = RuleCheck.check("OA", task);
+			if (!checked) {
+				MessageBox.post("当前任务不适用于EC变更信息传OA功能", "提示", MessageBox.INFORMATION);
+				return null;
+			}
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			TCComponentItem ecn = null;
 			List<TCComponentItemRevision> solus = new ArrayList<>();
@@ -96,8 +97,10 @@ public class SendECMsgHandlers extends AbstractHandler {
 				 MessageBox.post("EC没有流程单号，无法获取OA的归档附件，请先填写OA流程单号", "提示", MessageBox.INFORMATION);
 				 return null;
 			 }
+			 System.out.println(new Date());
 			ECMsgSentToOAAction action = new ECMsgSentToOAAction(ecn,problems, solus);
 			String msg=action.excute();
+			 System.out.println(new Date());
 			MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 		} catch (Exception exp) {
 			MessageBox.post(exp);

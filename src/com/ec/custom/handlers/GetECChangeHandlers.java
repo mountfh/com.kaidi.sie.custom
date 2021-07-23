@@ -3,6 +3,8 @@ package com.ec.custom.handlers;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+
+import com.leoch.sie.custom.utils.RuleCheck;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCAttachmentScope;
 import com.teamcenter.rac.kernel.TCAttachmentType;
@@ -29,6 +31,11 @@ public class GetECChangeHandlers extends AbstractHandler {
 		TCComponentTask task = (TCComponentTask) tcc;
 		TCComponent[] targets = null;		
 		try {
+//			boolean checked = RuleCheck.check("OA", task);
+//			if (!checked) {
+//				MessageBox.post("当前任务不适用于EC变更信息传OA功能", "提示", MessageBox.INFORMATION);
+//				return null;
+//			}
 			targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 		} catch (TCException e1) {
 			e1.printStackTrace();
@@ -52,6 +59,7 @@ public class GetECChangeHandlers extends AbstractHandler {
 			oaid = ecn.getProperty("k8_OA");
 			if(oaid.equals("")){
 				MessageBox.post("EC没有流程单号，无法获取OA的归档附件，请先填写OA流程单号", "提示", MessageBox.INFORMATION);
+				return null;
 			}
 			GetOADocAction action = new GetOADocAction();
 			String msg = action.sent(oaid,ecn);
