@@ -126,15 +126,22 @@ public class BOMStruct {
 		String id = rev.getProperty("item_id");
 		if (subLines != null && subLines.length > 0) {
 //			BOPInfoModel model = new BOPInfoModel();
-			if (ecnNo != null && !isSentSap) { //是否变更
-				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
-				msg += model.load();
-				BOPinfo.put(id, model);
-			}else if(ecnNo == null && !isSentSap){
-				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
-				msg += model.load();
-				BOPinfo.put(id, model);
-			}
+//			if (ecnNo != null && !isSentSap) { //是否变更
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}else if(ecnNo == null && !isSentSap){
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}else {
+//				BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+//				msg += model.load();
+//				BOPinfo.put(id, model);
+//			}
+			BOPInfoModel model = new BOPInfoModel(topLine, rev, ecnNo, subLines);
+			msg += model.load();
+			BOPinfo.put(id, model);
 		}
 	}
 		
@@ -167,10 +174,11 @@ public class BOMStruct {
 					model.setLevel(l);
 				}
 			}
-			
-			for (int i = 0; i < subLines.length; i++) {
-				TCComponentBOMLine subLine = (TCComponentBOMLine) subLines[i].getComponent();
-				loadModel(subLine, level + 1);
+			if(ecnNo == null) {
+				for (int i = 0; i < subLines.length; i++) {
+					TCComponentBOMLine subLine = (TCComponentBOMLine) subLines[i].getComponent();
+					loadModel(subLine, level + 1);
+				}
 			}
 		} else {
 			boolean flag = Part.isBOM(rev);

@@ -91,7 +91,7 @@ public class BOMSentToSAPAction {
 				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
-			
+			//发送物料
 			if (partModels != null && partModels.size() != 0) {
 				PartSyncToSapAction action = new PartSyncToSapAction(log);
 				msg = action.sent(partModels,ids);
@@ -100,7 +100,19 @@ public class BOMSentToSAPAction {
 					return;
 				}
 			}
+			//发送OA
+			String  oaMsg  = "";
+			if (partModels != null && partModels.size() != 0) {
+				PartSyncToOAAction synOA = new PartSyncToOAAction();
+				msg = synOA.sent(partModels);
+				if (!msg.isEmpty()) {
+					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					return;
+				}
+				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
+			}
 			
+			//发BOM
 			BOMStruct struct = new BOMStruct(revs, session); // 不带ecnNO参数时，为BOM新增
 			msg = struct.load();
 			struct.close();
@@ -120,16 +132,7 @@ public class BOMSentToSAPAction {
 				MessageBox.post(msg, "错误", MessageBox.ERROR);
 				return;
 			}
-			String  oaMsg  = "";
-			if (partModels != null && partModels.size() != 0) {
-				PartSyncToOAAction synOA = new PartSyncToOAAction();
-				msg = synOA.sent(partModels);
-				if (!msg.isEmpty()) {
-					MessageBox.post(msg, "错误", MessageBox.ERROR);
-					return;
-				}
-				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
-			}
+			
 			MessageBox.post("BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (JCoException | TCException | IOException e) {
 			e.printStackTrace();

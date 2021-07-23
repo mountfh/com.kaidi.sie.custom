@@ -17,7 +17,7 @@ public class BOPInfoModel {
 	
 	private static String MATNR = "MATNR"; //父件物料编码
 	private static String WERKS = "WERKS"; //工厂
-	private static String PLNNR = "PLNNR";
+	private static String PLNNR = "PLNNR"; //组
 	private static String AENNR = "AENNR"; //变更号
 	private static String KTEXT = "KTEXT"; //工艺路线描述
 	private static String DATUV = "DATUV"; //生效日期
@@ -26,6 +26,8 @@ public class BOPInfoModel {
 	private static String LOSVN = "LOSVN"; //最小批量
 	private static String LOSBS = "LOSBS"; //最大批量
 	private static String PLNME = "PLNME"; //任务清单计量单位
+	private static String PLNAL = "PLNAL"; //组计数器
+
 	
 	private TCComponentBOMLine top; // 顶层BOM
 	
@@ -76,10 +78,11 @@ public class BOPInfoModel {
 		
 		if (ecnNo != null) {
 			bomInfo.put(AENNR, ecnNo);
-		}
-		
-		String k8_PLNNR = rev.getProperty("k8_PLNNR");
-		bomInfo.put("PLNNR", k8_PLNNR);
+			String k8_PLNNR = rev.getProperty("k8_PLNNR");
+			bomInfo.put("PLNNR", k8_PLNNR);
+			String k8_PLNAL = rev.getProperty("k8_PLNAL");
+			bomInfo.put("PLNAL", k8_PLNAL);
+		}				
 		
 		String object_desc = rev.getProperty("object_name");
 		bomInfo.put(KTEXT, object_desc);
@@ -94,15 +97,11 @@ public class BOPInfoModel {
 		bomInfo.put(STATU, k8_STATU);
 		
 		String k8_LOSVN = rev.getProperty("k8LOSVN2");
-//		if(k8_LOSVN.contains(".0")) {
-//			k8_LOSVN = k8_LOSVN.split(".0");
-//		}
+
 		bomInfo.put(LOSVN, k8_LOSVN);
 		
 		String k8_LOSBS = rev.getProperty("k8_LOSBS2");
-//		if(k8_LOSBS.contains(".0")) {
-//			k8_LOSBS = k8_LOSBS.split(".0")[0];
-//		}
+
 		bomInfo.put(LOSBS, k8_LOSBS);
 		
 		String k8_PLNME = rev.getProperty("k8_PLNME");

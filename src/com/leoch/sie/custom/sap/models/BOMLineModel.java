@@ -26,7 +26,7 @@ public class BOMLineModel {
 	public static int MEINS_L = 3; // 组件计量单位长度
 	
 	public static String AUSCH = "AUSCH"; // 部件废品率(非必填)(子件损耗率)
-	public static int AUSCH_L = 3; 
+	public static int AUSCH_L = 5; 
 	
 	public static String SANKA = "SANKA"; // 与成本相关(默认为X，虚拟件/客供料不填，由工程师选填；Z004不填)
 	public static int SANKA_L = 1; 
@@ -46,6 +46,8 @@ public class BOMLineModel {
 	public static String ALPST = "ALPST"; // 替代项目：策略(非必填)
 	
 	public static String EWAHR = "EWAHR"; // 使用可能性按 % (BTCI)(非必填)
+	
+//	public static String NUMBER = "NUMBER"; // 查找编号
 	
 	private Map<String, Object> info = null;
 	
@@ -99,7 +101,7 @@ public class BOMLineModel {
 			msg += bomLineId + "物料编码长度不能超过" + IDNRK_L + "\n";
 		}
 		info.put(IDNRK, bomLineId); // 物料号
-		String symbol = bomLine.getProperty("bl_occ_k8_Symbol");
+		String symbol = bomLine.getProperty("K8_Symbol");
 		if(symbol.isEmpty() || symbol.equals("+")) {
 			info.put(MENGE, quantity); // 组件数量
 		}else {
@@ -119,13 +121,21 @@ public class BOMLineModel {
 		}
 		info.put(MEINS, unit);
 		
-		String ausch = bomLine.getProperty("bl_occ_k8_Sub_component"); // 子件损耗率
+		String ausch = bomLine.getProperty("K8_Sub component"); // 子件损耗率
 		if (ausch.length() > AUSCH_L) {
 			msg += bomLineId + "子件损耗率长度不能超过" + AUSCH_L + "\n";
 		}
 		info.put(AUSCH, ausch);
+		
+		//判断查找编号是否正确
+		String number = bomLine.getProperty("bl_sequence_no"); // 查找编号
+		String numberlen = number.substring(number.length() -1,number.length());
+		if (!numberlen.equals("0")) {
+			System.out.println(numberlen);
+			msg += bomLineId + ":中的查找编号属性最后一位需为：0" + "\n";
+		}
 
-		String sanka = bomLine.getProperty("bl_occ_k8_Sanka"); // 与成本相关
+		String sanka = bomLine.getProperty("K8_Sanka"); // 与成本相关
 		if(sanka.isEmpty() || sanka.trim().equals("")) {
 			sanka = "X";
 		}
@@ -134,7 +144,7 @@ public class BOMLineModel {
 		}
 		info.put(SANKA, sanka);
 	
-		String lgort = bomLine.getProperty("bl_occ_k8_Lgort"); // 投料库存地点
+		String lgort = bomLine.getProperty("K8_Lgort"); // 投料库存地点
 		if (lgort.length() > LGORT_L) {
 			msg += bomLineId + "投料库存地点长度不能超过" + LGORT_L + "\n";
 		}
