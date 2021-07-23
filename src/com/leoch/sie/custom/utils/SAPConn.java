@@ -100,7 +100,7 @@ public class SAPConn {
 			} else {
 
 //				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";;
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
 
 			}
     		sapjco3 = new File(PATH + DLL_FULL_NAME);

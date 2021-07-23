@@ -13,7 +13,7 @@ import com.teamcenter.rac.kernel.TCSession;
 
 public class ECNModel {
 
-	public static final String ECNSentSAPFlag = "k8_ecn_sendSAP";
+	public static final String ECNSentSAPFlag = "k8_ecn_send_SAP";
 	public static String AENNR = "AENNR"; // 更改编号
 	public static int AENNR_L = 12; // //变更编号长度
 	
