@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 import com.leoch.sie.custom.sap.models.BOMStruct;
 import com.leoch.sie.custom.sap.models.BOPInfoModel;
 import com.leoch.sie.custom.sap.models.BOPLineModel;
+import com.leoch.sie.custom.utils.MyCreateUtil;
 import com.leoch.sie.custom.utils.SAPConn;
 import com.leoch.sie.custom.utils.Sort;
 import com.sap.conn.jco.JCoDestination;
@@ -20,6 +22,7 @@ import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 import com.teamcenter.rac.aifrcp.AIFUtility;
+import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
@@ -47,7 +50,20 @@ public class BOPChangeSentToSAPAction {
 		this.ecn_no = ecn_no;
 	}
 	
-	public void excute() {
+	public void excute() throws TCException{
+		
+		for (int i = 0; i < revs.size(); i++) {
+			 TCComponent[] rows = revs.get(i).getRelatedComponents("k8_row");
+			 TCComponent[] relatedParts = revs.get(i).getRelatedComponents("K8_Related_Part");
+			 if(relatedParts.length>0){
+				 
+			 }else{
+				 
+			 }
+		}
+	}
+	
+	public void excute1() {
 		
 		try {
 			List<TCComponentItemRevision> newrev = new ArrayList<TCComponentItemRevision>();
@@ -172,6 +188,30 @@ public class BOPChangeSentToSAPAction {
 			}
 		}
 		return msg;
+	}
+	
+	public String setSapGroup(TCComponentItemRevision comp,String parentID,String gcount,String group,String status) throws TCException{
+		
+		Map<String, String> propertyMap = new HashMap<String, String>();
+		propertyMap.put("k8_part", parentID);
+		propertyMap.put("k8_group", gcount);
+		propertyMap.put("k8_groupcount", group);
+		propertyMap.put("k8_status", status);
+		String temp = null;
+		TCComponent row = MyCreateUtil.createWorkspaceObject("K8_ProcessRow", propertyMap);
+				TCComponent[] comps = comp.getRelatedComponents("k8_row");
+				if(comps.length>0){
+					for (int i = 0; i < comps.length; i++) {
+						temp = comps[i].getProperty("k8_part");
+						if(temp.equals(parentID)){
+							comp.remove("k8_row", comps[i]);							
+						}
+						comp.add("k8_row", row);
+					}
+				}else{
+					 comp.add("k8_row", row);
+				}
+		return null;		
 	}
 	
 }

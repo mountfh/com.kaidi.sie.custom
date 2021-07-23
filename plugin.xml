@@ -4,9 +4,9 @@
 
    <extension point="org.eclipse.ui.commands" >
       <command name="物料信息发送SAP" id="PartSentToSap" />
-      <command name="物料ECN同步SAP" id="ChangePartToSap" />
-      <command name="BOM同步SAP" id="BOMSentToSap" />
-      <command name="ECN同步SAP" id="ECNSentToSap" />
+      <command name="物料变更同步SAP" id="ChangePartToSap" />
+      <command name="BOM新建同步SAP" id="BOMSentToSap" />
+      <command name="EC变更同步SAP" id="ECNSentToSap" />
       <command name="工艺表新建传送SAP" id="BOPSentToSap" />
       <command name="工艺表变更传送SAP" id="BOPChangeSentToSap" />
       

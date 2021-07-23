@@ -36,11 +36,11 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 
 		TCComponentTask task = (TCComponentTask) tcc;
 		try {
-			boolean checked = RuleCheck.check("EC", task);
-			if (!checked) {
-				MessageBox.post("当前任务不适用于BOM变更传SAP功能", "提示", MessageBox.INFORMATION);
-				return null;
-			}
+//			boolean checked = RuleCheck.check("EC", task);
+//			if (!checked) {
+//				MessageBox.post("当前任务不适用于BOM变更传SAP功能", "提示", MessageBox.INFORMATION);
+//				return null;
+//			}
 			TCComponent[] targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 			TCComponentItem ecn = null;
 			List<TCComponentItemRevision> solus = new ArrayList<>();
@@ -89,7 +89,7 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 			String temp = null;
 			for (int i = 0; i < solus.size(); i++) {
 				solus.get(i).refresh();
-				temp = solus.get(i).getProperty("k8_MATNR2");
+				temp = solus.get(i).getProperty("K8_Related_Part");
 				if(temp.equals("")) {
 					temp = solus.get(i).getProperty("object_name");
 					msg += temp+":没有关联物料！"+"\n";

@@ -8,14 +8,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.leoch.sie.custom.utils.MyDatasetUtil;
+import com.leoch.sie.custom.utils.SmbUtil;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponentDataset;
 import com.teamcenter.rac.kernel.TCComponentItem;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 
+import jcifs.smb.SmbFile;
 import net.sf.json.JSONObject;
 
 public class GetOADocAction {
@@ -24,6 +28,8 @@ public class GetOADocAction {
 	private String processNum = ""; 
 	private TCSession session = null;
 	private TCComponentItem ecn = null;
+	private String localPath = "D:\\Temp";
+	private String dateString = null;
 	
 	private HttpURLConnection getHTTPConnection() throws IOException {
 		URL url = new URL(url_address);  
@@ -42,7 +48,7 @@ public class GetOADocAction {
 		json += getJSON(oaid);
 	   //组织SOAP数据，发送请求  
 	   String soapXML = getXML(json);
-//	   System.out.println(soapXML);
+	   System.out.println(soapXML);
 	   HttpURLConnection connection = getHTTPConnection();
        OutputStream os = connection.getOutputStream();  
        os.write(soapXML.getBytes("UTF-8"));
@@ -87,7 +93,10 @@ public class GetOADocAction {
 
 
 	private String getReturn(String str) {
-			
+		
+		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();
+		dateString = formatter.format(date);	
 		String msg = null;
 		String responseMsg = null;
 	   try {
@@ -103,7 +112,8 @@ public class GetOADocAction {
 		   if(isSuccess != null && isSuccess.equals("S")) {
 				if(issend!=null&&issend.equals("1")){
 					if(!formfilepath.equals("")&&!formname.equals("")){
-						pigeonhole(formfilepath+"\\"+formname);
+//						pigeonhole(formfilepath+"\\"+formname);
+						pigeonhole(formname);
 					}
 					return "OA变更表单附件归档成功！归档在EC的变更文件夹中!";
 				}else if(issend!=null&&issend.equals("0")){
@@ -123,22 +133,27 @@ public class GetOADocAction {
 	   }
 	}
 	
-	public void  pigeonhole(String path) throws Exception{
+	public void  pigeonhole(String filename) throws Exception{
 		String docname = "";
-//		String paths = "D:\\Share\\1.2工程更改通知流程（凯程ECN）-系统管理员-2021-07-07_offline_html.zip";
 		TCComponentDataset dataset = null;
-		if (path != null) {
-			File file = new File(path);
+		File folder = new File(localPath);
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		if (filename != null) {
+//			System.out.println(filename);
+			String smb = "smb://aaa:123456@192.168.1.145/share/"+dateString+"/"+filename;
+			File file = SmbUtil.downloadFile(smb, localPath);
 			if(file.exists()){
 				docname = file.getName();
 				dataset =MyDatasetUtil.createDateset(docname, file, session);
 				ecn.add("K8_ECRlist", dataset);
 			}else{
-				throw new Exception("OA的上传文件不存在！");
+				throw new Exception("OA的上传文件不存在！或无法访问OA路径文件。");
 			}
 
 		}
-	}
+	}	
 	
 	public String getJSON(String oaid){  
 		 String info = "{"

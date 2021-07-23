@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import com.custom.bean.ECPartBean;
 import com.leoch.sie.custom.utils.RacDatasetUtil;
+import com.leoch.sie.custom.utils.SmbUtil;
 import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentDataset;
 import com.teamcenter.rac.kernel.TCComponentItem;
@@ -32,7 +33,9 @@ public class ECMsgSentToOAAction {
 	private ArrayList<ECPartBean> beanList;
 	private HashMap<String, ArrayList<ECPartBean>> partMap;
 	private String path = "\\\\192.168.1.145\\fenfa";
+	private String localPath = "C:\\Temp";
 		
+	private List<String> pathList = null;
 	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
 	private TCComponentItem ecn = null;
 	
@@ -92,34 +95,38 @@ public class ECMsgSentToOAAction {
 	}
 	
 	public String downDatasets(TCComponent comp) throws Exception {
-		
-		SimpleDateFormat formatter= new SimpleDateFormat("yyy-MM-dd");
+		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();
-		String dateString = formatter.format(date);		
-		String temp = path+"\\"+dateString;
+		String dateString = formatter.format(date);	
+		SmbUtil smb = SmbUtil.getInstance("smb://aaa:123456@192.168.1.145/fenfa"+"/"+dateString);
+//		""\\fenfa\\2021-07-21\\»ú¿Ç×é¼þ.pdf"
+		String temp = localPath+"\\"+dateString;
 		File folderFile = new File(temp); 
 		if(!folderFile.exists()) {
 			folderFile.mkdirs();
 		}
-		String urltemp = "";		
+		String urltemp = "";
+		String path = "";
 		List<TCComponentDataset> datasetList = RacDatasetUtil.getDatasets(comp);
 		for (int i = 0; i < datasetList.size(); i++) {
-			 HashMap<String, File> fileMap = RacDatasetUtil.getTCFile(datasetList.get(i), temp);
+			HashMap<String, File> fileMap = RacDatasetUtil.getTCFile(datasetList.get(i), temp);
 			 if(fileMap.size()>0) {
-				 for(String key:fileMap.keySet()) {
-					 File value = fileMap.get(key);
-					 if(value!=null) {
-						  urltemp += value.getPath()+"##";
-					 }
-				 };
-			 }
+			 for(String key:fileMap.keySet()) {
+				 File value = fileMap.get(key);
+				 if(value!=null) {
+					 smb.uploadFile(value);
+					  path = "\\fenfa\\"+value.getPath().substring(8);
+					  System.out.println(path);
+					  urltemp += path+"##";
+				 }
+			 };
+		 }
 		}
 		if(urltemp.endsWith("##")) {
 			urltemp = urltemp.substring(0,urltemp.length()-2);
 		}		
 		return urltemp;		
-	}
-	
+	}	
 	
 	public void getProblemBean() throws Exception {
 		
