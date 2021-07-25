@@ -38,7 +38,7 @@ public class SAPConn {
 			isTest = false;
 		}
 		if (isTest) {
-			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.12");// 应用服务器
+			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.12");// 测试应用服务器
 			connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR, "00"); // 系统编号(实例编号)
 			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "120"); // SAP集团
 			
@@ -48,7 +48,7 @@ public class SAPConn {
 			connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3"); // 最大连接数
 			connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT, "10"); // 最大连接线程
 		} else {
-			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.14");// 应用服务器
+			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.14");// 正式应用服务器
 			connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR, "00"); // 系统编号(实例编号)
 			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "800"); // SAP集团·
 			
