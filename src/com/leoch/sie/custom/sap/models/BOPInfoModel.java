@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.leoch.sie.custom.utils.MyCreateUtil;
 import com.teamcenter.rac.aif.kernel.AIFComponentContext;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponent;
@@ -117,6 +118,31 @@ public class BOPInfoModel {
 		}		
 		return msg;		
 	}
+	
+	public TCComponentItemRevision getTopRev(){
+		return rev;		
+	}
+	
+	
+	/**
+	 * @param comp
+	 * @param parentID
+	 * @param gcount
+	 * @param group
+	 * @param status
+	 * @throws TCException
+	 */
+	public void setRowProperty(TCComponentItemRevision comp,String parentID,String gcount,String group,String status) throws TCException{
+	
+		Map<String, String> propertyMap = new HashMap<String, String>();
+		propertyMap.put("k8_part", parentID);
+		propertyMap.put("k8_group", gcount);
+		propertyMap.put("k8_groupcount", group);
+		propertyMap.put("k8_status", status);
+		TCComponent row = MyCreateUtil.createWorkspaceObject("K8_ProcessRow", propertyMap);
+		comp.add("k8_row", row);				
+	}
+	
 	
 	public void setERPBackProperty(String property,String value) throws TCException {
 //		session.getUserService().call("avicit_call_bypass", new Object[] { 1 });

@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import com.custom.bean.ECPartBean;
+import com.leoch.sie.custom.utils.MyPerference;
 import com.leoch.sie.custom.utils.RacDatasetUtil;
 import com.leoch.sie.custom.utils.SmbUtil;
 import com.teamcenter.rac.kernel.TCComponent;
@@ -32,14 +33,14 @@ public class ECMsgSentToOAAction {
 	private TCComponentItemRevision rev;
 	private ArrayList<ECPartBean> beanList;
 	private HashMap<String, ArrayList<ECPartBean>> partMap;
-	private String path = "\\\\192.168.1.145\\fenfa";
 	private String localPath = "C:\\Temp";
-		
-	private List<String> pathList = null;
-	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
+//	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
+	private static String  url_address = null;
 	private TCComponentItem ecn = null;
+	private String sendSmd = null;
 	
 	private HttpURLConnection getHTTPConnection() throws IOException {
+		
 		URL url = new URL(url_address);  
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();  
         connection.setRequestMethod("POST");  
@@ -57,6 +58,17 @@ public class ECMsgSentToOAAction {
 	}
 	
 	public String excute() throws Exception {
+		url_address = MyPerference.getOAAddress();
+		url_address = url_address+"/services/PlmUploadService";
+		String[] SmbAddress = MyPerference.getSmbAddress();
+		if(SmbAddress.length<1){
+			throw new Exception("OA地址的设置有误！请配置检查首选项-K8_Smb_Address"); 
+		}
+		sendSmd = SmbAddress[0];
+		sendSmd = sendSmd.substring(5);
+		if(sendSmd.equals("")){
+			throw new Exception("OA地址的设置有误！请配置检查首选项-K8_Smb_Address"); 
+		}
 		String msg = "";
 		String json = "";
 		String oaid = ecn.getProperty("object_desc");
@@ -87,6 +99,8 @@ public class ECMsgSentToOAAction {
             is.close();  
             isr.close();  
             br.close();
+//            ecn.setProperty("k8_is_sendOA", "true");
+            ecn.setLogicalProperty("k8_is_sendOA", true);
         }else {
         	msg += "物料发送OA失败（没有获取到OA的网络连接）.";
         }  
@@ -98,7 +112,8 @@ public class ECMsgSentToOAAction {
 		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();
 		String dateString = formatter.format(date);	
-		SmbUtil smb = SmbUtil.getInstance("smb://aaa:123456@192.168.1.145/fenfa"+"/"+dateString);
+//		SmbUtil smb = SmbUtil.getInstance("smb://aaa:123456@192.168.1.145/fenfa"+"/"+dateString);
+		SmbUtil smb = SmbUtil.getInstance(sendSmd+"/"+dateString);
 //		""\\fenfa\\2021-07-21\\机壳组件.pdf"
 		String temp = localPath+"\\"+dateString;
 		File folderFile = new File(temp); 
