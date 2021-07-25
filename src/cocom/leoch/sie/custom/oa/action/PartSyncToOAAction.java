@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.leoch.sie.custom.sap.models.PartModel;
+import com.leoch.sie.custom.utils.MyPerference;
 import com.teamcenter.rac.kernel.TCException;
 
 public class PartSyncToOAAction {
 	
-	private static String  url_address = "http://192.168.1.145:88/services/CreateWorkflowService";  
+//	private static String  url_address = "http://192.168.1.145:88/services/CreateWorkflowService";  
+	private static String  url_address = null;
 	private String processNum = ""; 
 	@SuppressWarnings("unused")
 	private HttpURLConnection getHTTPConnection() throws IOException {
@@ -31,6 +33,8 @@ public class PartSyncToOAAction {
 	
 	
 	public  String sent(List<PartModel> models) throws IOException, TCException {
+		url_address = MyPerference.getOAAddress();
+		url_address = url_address+"/services/CreateWorkflowService";
 		String msg = "";
 		if (models == null || models.size() == 0) {
 			return msg += "没有需要发送到OA的物料。";

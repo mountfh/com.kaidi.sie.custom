@@ -98,8 +98,8 @@ public class SendECMsgHandlers extends AbstractHandler {
 				 return null;
 			 }
 			 System.out.println(new Date());
-			ECMsgSentToOAAction action = new ECMsgSentToOAAction(ecn,problems, solus);
-			String msg=action.excute();
+			 ECMsgSentToOAAction action = new ECMsgSentToOAAction(ecn,problems, solus);
+			 String msg=action.excute();
 			 System.out.println(new Date());
 			MessageBox.post(msg, "ÌבÊ¾", MessageBox.INFORMATION);
 		} catch (Exception exp) {

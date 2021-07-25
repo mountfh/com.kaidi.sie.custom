@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.leoch.sie.custom.utils.MyDatasetUtil;
+import com.leoch.sie.custom.utils.MyPerference;
 import com.leoch.sie.custom.utils.SmbUtil;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponentDataset;
@@ -24,14 +25,17 @@ import net.sf.json.JSONObject;
 
 public class GetOADocAction {
 
-	private static String  url_address = "http://192.168.1.145:88/services/PlmDownloadService";  
+//	private static String  url_address = "http://192.168.1.145:88/services/PlmDownloadService";  
+	private static String  url_address = null;  
 	private String processNum = ""; 
 	private TCSession session = null;
 	private TCComponentItem ecn = null;
 	private String localPath = "D:\\Temp";
 	private String dateString = null;
+	private String sendSmd = null;
 	
 	private HttpURLConnection getHTTPConnection() throws IOException {
+		
 		URL url = new URL(url_address);  
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();  
         connection.setRequestMethod("POST");  
@@ -41,7 +45,18 @@ public class GetOADocAction {
 		return connection;		
 	}
 	
-	public  String sent(String oaid,TCComponentItem ecn) throws IOException, TCException {
+	public  String sent(String oaid,TCComponentItem ecn) throws Exception {
+		url_address = MyPerference.getOAAddress();
+		url_address = url_address+"/services/PlmDownloadService";
+		String[] SmbAddress = MyPerference.getSmbAddress();
+		if(SmbAddress.length<1){
+			throw new Exception("OA地址的设置有误！请配置检查首选项-K8_Smb_Address"); 
+		}
+		sendSmd = SmbAddress[1];
+		sendSmd = sendSmd.substring(4);
+		if(sendSmd.equals("")){
+			throw new Exception("OA地址的设置有误！请配置检查首选项-K8_Smb_Address"); 
+		}
 		this.ecn = ecn;
 		String msg = "";
 		String json = "";
@@ -75,6 +90,7 @@ public class GetOADocAction {
             is.close();  
             isr.close();  
             br.close();
+            ecn.setProperty("k8_is_get_target", "true");
         }else {
         	msg += "获取OA附件失败（没有获取到OA的网络连接）.";
         }  
@@ -142,7 +158,9 @@ public class GetOADocAction {
 		}
 		if (filename != null) {
 //			System.out.println(filename);
-			String smb = "smb://aaa:123456@192.168.1.145/share/"+dateString+"/"+filename;
+//			String smb = "smb://aaa:123456@192.168.1.145/share"+"/"+dateString+"/"+filename;
+			String smb = sendSmd+"/"+dateString+"/"+filename;
+			
 			File file = SmbUtil.downloadFile(smb, localPath);
 			if(file.exists()){
 				docname = file.getName();
