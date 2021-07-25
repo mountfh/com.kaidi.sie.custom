@@ -31,11 +31,11 @@ public class GetECChangeHandlers extends AbstractHandler {
 		TCComponentTask task = (TCComponentTask) tcc;
 		TCComponent[] targets = null;		
 		try {
-//			boolean checked = RuleCheck.check("OA", task);
-//			if (!checked) {
-//				MessageBox.post("当前任务不适用于EC变更信息传OA功能", "提示", MessageBox.INFORMATION);
-//				return null;
-//			}
+			boolean checked = RuleCheck.check("OA", task);
+			if (!checked) {
+				MessageBox.post("当前任务不适用于EC变更信息传OA功能", "提示", MessageBox.INFORMATION);
+				return null;
+			}
 			targets = task.getRoot().getAttachments(TCAttachmentScope.LOCAL, TCAttachmentType.TARGET);
 		} catch (TCException e1) {
 			e1.printStackTrace();

@@ -44,7 +44,7 @@ public class BOPSentToSapAction {
 	
 	/**
 	 * 	     
-	 * @param revs 任务目标下发送SAP的物料版本
+	 * @param revs 任务目标下发送SAP的工艺版本
 	 */
 		    
 	public BOPSentToSapAction(List<TCComponentItemRevision> revs) {
@@ -57,10 +57,11 @@ public class BOPSentToSapAction {
 			BOMStruct struct = null;
 			session = (TCSession) AIFUtility.getDefaultSession();
 			String msg = "";
-			String parentId = "";
+			//将所有A版本 的工艺表的置空。
 			for (int i = 0; i < revs.size(); i++) {
 				removeRow(revs.get(i));
-				TCComponent[] relatedParts = revs.get(i).getRelatedComponents("K8_Related_Part");
+			}
+			//将所有工艺传到sap
 				struct = new BOMStruct(revs, session); 
 				msg = struct.loadBOP();
 				struct.close();	
@@ -73,24 +74,88 @@ public class BOPSentToSapAction {
 					MessageBox.post("任务目标下没有需要同步SAP的工艺表！", "提示", MessageBox.INFORMATION);
 					return;
 				}
-				for (int j = 0; j < relatedParts.length; j++) {
-					parentId = relatedParts[j].getProperty("item_id");
-					msg = sent(models,parentId,revs.get(i));
-
-					if (msg != null && !msg.isEmpty()) {
-						MessageBox.post(msg, "错误", MessageBox.ERROR);
-						return;
-					}
-				}
-				revs.get(i).setLogicalProperty(BOMStruct.BOMSentSAPFlag, true);
-			}
-			
+				msg = createSend(models);
+				if (msg != null && !msg.isEmpty()) {
+					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					return;
+				}			
 			MessageBox.post("工艺表发送SAP成功", "提示", MessageBox.INFORMATION);
 		} catch (Exception e) {
 			e.printStackTrace();
 			//log.error(e);
 			MessageBox.post(e);
 		}		
+	}
+	
+	public String createSend(Map<String, BOPInfoModel> models) throws Exception{
+		String msg = "";
+		String relatedpartID = null;
+		TCComponentItemRevision rev = null;
+		JCoDestination destination = SAPConn.connect();
+		JCoRepository repository = destination.getRepository();
+		JCoFunction function = repository.getFunction(functionName);
+		Collection<BOPInfoModel> list = models.values();
+		List<BOPInfoModel> bomInfos = new ArrayList<>();
+		bomInfos.addAll(list);
+		for (BOPInfoModel bomInfo : bomInfos) {
+			 rev= bomInfo.getTopRev();
+			 TCComponent[] relatedParts = rev.getRelatedComponents("K8_Related_Part");
+			 Map<String, Object> values = bomInfo.getModel();
+			 for (int j = 0; j < relatedParts.length; j++) {
+					JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
+				    relatedpartID =relatedParts[j].getProperty("item_id");
+					JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
+					Set<String> keys = values.keySet();
+					values.put("MATNR", relatedpartID);
+					relatedpartID = (String) values.get("MATNR");
+					String info = "";
+					for (String key : keys) {
+						info += key + "=" + values.get(key) + "\n";
+						headTable.setValue(key, values.get(key));
+					}
+					System.out.println("TopBOM:" + relatedpartID + ":"+ "\n" + info);
+					List<BOPLineModel>  bomlineInfos = bomInfo.getBOMLinModel();					
+					for (int i = 0; i < bomlineInfos.size(); i++) {
+						BOPLineModel bomlineInfo = bomlineInfos.get(i);
+						bomlineTable.insertRow(i);
+						values = bomlineInfo.getModel();
+						keys = values.keySet();
+						String childID = values.get("IDNRK") + "";
+						info = "";
+						for (String key : keys) {
+							info += key + "=" + values.get(key) + "\n";
+							bomlineTable.setValue(key, values.get(key));
+						}
+						System.out.println("SubLine:" + childID + ":\n" + info);
+					}
+					System.out.println(bomlineTable.toString());
+					function.execute(destination);
+					JCoStructure table = function.getExportParameterList().getStructure(export_Table);
+					String type = 	table.getString("STA");
+					String message = table.getString("MESSAGE");
+					String plnnr  = table.getString("PLNNR");
+					String plnal = table.getString("PLNAL");	
+					System.out.println(message);
+					if (!"S".equals(type)) {
+						message = "SAP ERROR:物料"+ relatedpartID+ message;
+//						log.error(message);
+						msg += message + "\n";
+					} else {
+						if(plnnr!=null&&!plnnr.equals("")) {
+							bomInfo.setRowProperty(rev, relatedpartID, plnal, plnnr, "在用");
+//							setSapGroup(rev,relatedpartID,plnal,plnnr,"在用");
+							bomInfo.setERPBackProperty("k8_PLNNR", plnnr);
+							bomInfo.setERPBackProperty("k8_PLNAL", plnal);
+						}
+						bomInfo.setSentSAPFlag();
+//						log.info(message);
+					}
+					if (msg != null && !msg.isEmpty()) {
+						return msg;
+					}				
+			}
+		}
+		return msg;
 	}
 	
 	public String sent(Map<String, BOPInfoModel> models,String relatedID,TCComponentItemRevision rev) throws JCoException, TCException, IOException{

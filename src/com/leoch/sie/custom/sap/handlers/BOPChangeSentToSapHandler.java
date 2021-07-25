@@ -101,7 +101,7 @@ public class BOPChangeSentToSapHandler extends AbstractHandler{
 				BOPChangeSentToSAPAction action = new BOPChangeSentToSAPAction(solus, ecn_no);
 				action.excute();
 			}			
-		} catch (TCException exp) {
+		} catch (Exception exp) {
 			MessageBox.post(exp);
 			exp.printStackTrace();
 		}

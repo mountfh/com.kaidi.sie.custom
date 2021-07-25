@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.leoch.sie.custom.utils.MyDatasetUtil;
+import com.leoch.sie.custom.utils.MyPerference;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponentDataset;
 import com.teamcenter.rac.kernel.TCComponentItem;
@@ -18,9 +19,10 @@ import com.teamcenter.rac.kernel.TCSession;
 
 import net.sf.json.JSONObject;
 
-public class SendECMsgAction {
+public class TestAction {
 	
-	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
+//	private static String  url_address = "http://192.168.1.145:88/services/PlmUploadService";  
+	private static String  url_address =null; 
 	private String processNum = ""; 
 	private TCSession session = null;
 	private TCComponentItem ecn = null;
@@ -36,6 +38,8 @@ public class SendECMsgAction {
 	}
 	
 	public  String sent(String oaid,TCComponentItem ecn) throws IOException, TCException {
+		url_address = MyPerference.getOAAddress();
+		url_address = url_address+"/services/PlmUploadService";
 		this.ecn = ecn;
 		String msg = "";
 		String json = "";
