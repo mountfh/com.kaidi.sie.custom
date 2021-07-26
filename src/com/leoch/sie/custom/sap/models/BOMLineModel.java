@@ -136,9 +136,9 @@ public class BOMLineModel {
 		}
 
 		String sanka = bomLine.getProperty("K8_Sanka"); // 与成本相关
-		if(sanka.isEmpty() || sanka.trim().equals("")) {
-			sanka = "X";
-		}
+//		if(sanka.isEmpty() || sanka.trim().equals("")) {
+//			sanka = "X";
+//		}
 		if (sanka.length() > SANKA_L) {
 			msg += bomLineId + "与成本相关长度不能超过" + SANKA_L + "\n";
 		}
