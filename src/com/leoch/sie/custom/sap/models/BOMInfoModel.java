@@ -71,6 +71,8 @@ public class BOMInfoModel {
 	}
 	
 	
+
+
 	/**
 	 * @Title: load
 	 * @Description: 加载并检查BOM结构信息

@@ -38,19 +38,27 @@ public class SAPConn {
 			isTest = false;
 		}
 		if (isTest) {
-			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.12");// 应用服务器
+			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.13");// 测试应用服务器
 			connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR, "00"); // 系统编号(实例编号)
-			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "120"); // SAP集团
+			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "500"); // SAP集团
+			
+			connectProperties.setProperty(DestinationDataProvider.JCO_USER, "JT-OA"); // SAP用户名
+			connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, "Aa123456"); // 密码
+			connectProperties.setProperty(DestinationDataProvider.JCO_LANG, "zh"); // 登录语言
+			connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3"); // 最大连接数
+			connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT, "10"); // 最大连接线程
 		} else {
-			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.12");// 应用服务器
+			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.14");// 正式应用服务器
 			connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR, "00"); // 系统编号(实例编号)
-			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "120"); // SAP集团
+			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "800"); // SAP集团·
+			
+			connectProperties.setProperty(DestinationDataProvider.JCO_USER, "itport"); // SAP用户名
+			connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, "Kd02779!"); // 密码
+			connectProperties.setProperty(DestinationDataProvider.JCO_LANG, "zh"); // 登录语言
+			connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3"); // 最大连接数
+			connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT, "10"); // 最大连接线程
 		}
-		connectProperties.setProperty(DestinationDataProvider.JCO_USER, "JT-OA"); // SAP用户名
-		connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, "Aa123456"); // 密码
-		connectProperties.setProperty(DestinationDataProvider.JCO_LANG, "zh"); // 登录语言
-		connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3"); // 最大连接数
-		connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT, "10"); // 最大连接线程
+		
 	}
 	
 	/**
@@ -100,7 +108,7 @@ public class SAPConn {
 			} else {
 
 //				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";;
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
 
 			}
     		sapjco3 = new File(PATH + DLL_FULL_NAME);

@@ -118,6 +118,7 @@ public class PartSyncToSapAction extends Thread{
 		if (isNew) {
 			for (int i = 0; i < models.size(); i++) {
 				PartModel model = models.get(i);
+//				设置标识
 				model.setSentSAPFlag();
 			}
 			MessageBox.post("物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
