@@ -142,7 +142,7 @@ public class BOPSentToSapAction {
 						msg += message + "\n";
 					} else {
 						if(plnnr!=null&&!plnnr.equals("")) {
-							bomInfo.setRowProperty(rev, relatedpartID, plnal, plnnr, "在用");
+							bomInfo.setRowProperty(rev, relatedpartID,plnnr, plnal, "在用");
 //							setSapGroup(rev,relatedpartID,plnal,plnnr,"在用");
 							bomInfo.setERPBackProperty("k8_PLNNR", plnnr);
 							bomInfo.setERPBackProperty("k8_PLNAL", plnal);

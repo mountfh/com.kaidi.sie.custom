@@ -218,8 +218,8 @@ public class BOPChangeSentToSAPAction {
 					 rowPartID = rowComps[j].getProperty("k8_part");
 					 if(rowPartID.equals(relatedpartID)){
 						 //±ä¸ü
-						 plnnr = rowComps[j].getProperty("k8_group");
 						 plnal = rowComps[j].getProperty("k8_groupcount");
+						 plnnr = rowComps[j].getProperty("k8_group");
 						 msg = change(bomInfo,plnnr,plnal,destination,function,relatedpartID);
 						 if(!msg.equals("")){
 							 throw new Exception(msg);
