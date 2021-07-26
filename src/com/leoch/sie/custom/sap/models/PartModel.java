@@ -144,7 +144,8 @@ public class PartModel {
 			
 			String spras = part.getProperty("k8_language");
 			if (spras.isEmpty()) {
-				msg += "语言不能为空\n";
+//				msg += "语言不能为空\n";
+				spras="1";
 			}
 			if (spras.length() > SPRAS_L) {
 				msg += id + "的语言长度不能超过" + SPRAS_L + "\n";
@@ -162,7 +163,8 @@ public class PartModel {
 			
 		  String mbrsh = part.getProperty("k8_industry_field");
 			if (mbrsh.isEmpty()) {
-				msg += "行业领域不能为空\n";
+//				msg += "行业领域不能为空\n";
+				mbrsh="M";
 			}
 			if (mbrsh.length() > MBRSH_L) {
 				msg += id + "的行业领域长度不能超过" + MBRSH_L + "\n";
