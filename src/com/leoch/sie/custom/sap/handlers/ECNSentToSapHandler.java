@@ -72,7 +72,7 @@ public class ECNSentToSapHandler extends AbstractHandler {
 				return null;
 			}
 			boolean flag = ecn.getLogicalProperty(ECNModel.ECNSentSAPFlag);
-//			flag = false;
+			flag = false;
 			if (flag) {
 				MessageBox.post("变更信息已同步SAP！", "提示", MessageBox.INFORMATION);
 				return null;

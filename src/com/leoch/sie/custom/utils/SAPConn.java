@@ -38,9 +38,9 @@ public class SAPConn {
 			isTest = false;
 		}
 		if (isTest) {
-			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.12");// 测试应用服务器
+			connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "192.168.100.13");// 测试应用服务器
 			connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR, "00"); // 系统编号(实例编号)
-			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "120"); // SAP集团
+			connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "500"); // SAP集团
 			
 			connectProperties.setProperty(DestinationDataProvider.JCO_USER, "JT-OA"); // SAP用户名
 			connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, "Aa123456"); // 密码
