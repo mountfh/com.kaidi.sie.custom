@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.apache.log4j.Logger;
 
 import com.leoch.sie.custom.sap.models.PartModel;
@@ -16,6 +19,8 @@ import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoParameterList;
 import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
+import com.teamcenter.rac.aif.AIFDesktop;
+import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
@@ -75,6 +80,7 @@ public class PartSyncToSapAction extends Thread{
 	 */
 	public void excute() throws TCException, JCoException, IOException   {
 		List<PartModel> models = new ArrayList<>();
+		AIFDesktop desk = AIFUtility.getActiveDesktop();
 		String msg = "";
 		List<String> ids = new ArrayList<>();
 		for (int i = 0; i < targets.length; i++) {
@@ -95,25 +101,25 @@ public class PartSyncToSapAction extends Thread{
 		}
 		
 		if (!msg.isEmpty()) {
-			MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+			MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 			return;
 		}
 		
 		if (models.size() == 0) {
-			MessageBox.post("任务目标下没有需要同步SAP与OA的物料！", "提示", MessageBox.INFORMATION);
+			MessageBox.post(desk,"任务目标下没有需要同步SAP与OA的物料！", "提示", MessageBox.INFORMATION);
 			return;
 		}
 		//传OA
 		PartSyncToOAAction synOA = new PartSyncToOAAction();
 		msg = synOA.sent(models);
 		if (!msg.isEmpty()) {
-			MessageBox.post(msg, "错误", MessageBox.ERROR);
+			MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 			return;
 		}
 		//传SAP
 		msg = sent(models, ids);
 		if (!msg.isEmpty()) {
-			MessageBox.post(msg, "错误", MessageBox.ERROR);
+			MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 			return;
 		}
 		
@@ -125,9 +131,9 @@ public class PartSyncToSapAction extends Thread{
 //				model.setSentSAPFlag();
 //			}
 			
-			MessageBox.post("物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
+			MessageBox.post(desk,"物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
 		} else {
-			MessageBox.post("物料更新发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
+			MessageBox.post(desk,"物料更新发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum(), "提示", MessageBox.INFORMATION);	
 		}
 	
 	}
