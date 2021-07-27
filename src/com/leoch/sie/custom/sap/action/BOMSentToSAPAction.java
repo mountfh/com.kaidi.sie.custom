@@ -166,6 +166,7 @@ public class BOMSentToSAPAction {
 			Collections.sort(bomInfos, new Sort());
 		}
 		for (BOMInfoModel bomInfo : bomInfos) {
+//			JCoFunction function = repository.getFunction(functionName);
 			Map<String, Object> values = bomInfo.getModel();
 			JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
 			Set<String> keys = values.keySet();
@@ -207,6 +208,9 @@ public class BOMSentToSAPAction {
 			if (msg != null && !msg.isEmpty()) {
 				return msg;
 			}
+			headTable.clear();
+			bomlineTable.clear();
+//			function.clone();
 		}
 		return msg;
 	}
