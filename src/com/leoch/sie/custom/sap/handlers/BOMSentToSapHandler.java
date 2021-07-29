@@ -64,6 +64,7 @@ public class BOMSentToSapHandler extends AbstractHandler{
 					demo.start();
 					action.excute();
 					demo.close();
+					
 				}
 			}).start();
 			

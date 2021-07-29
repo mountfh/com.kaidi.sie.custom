@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JPanel;
+
 import org.apache.log4j.Logger;
 
 import com.leoch.sie.custom.sap.logs.NewBOMLog;
@@ -23,6 +25,7 @@ import com.sap.conn.jco.JCoFunction;
 import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
+import com.teamcenter.rac.aif.AIFDesktop;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
@@ -66,6 +69,7 @@ public class BOMSentToSAPAction {
 	    
 	public void excute() {
 		session = (TCSession) AIFUtility.getDefaultSession();
+		AIFDesktop desk = AIFUtility.getActiveDesktop();
 		if (session == null) {
 			MessageBox.post(new TCException("获取TC会话失败,无法读取系统数据！"));
 			return;
@@ -88,7 +92,7 @@ public class BOMSentToSAPAction {
 			}
 			
 			if (!msg.isEmpty()) {
-				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
 			//发送物料
@@ -96,7 +100,7 @@ public class BOMSentToSAPAction {
 				PartSyncToSapAction action = new PartSyncToSapAction(log);
 				msg = action.sent(partModels,ids);
 				if (!msg.isEmpty()) {
-					MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+					MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 					return;
 				}
 			}
@@ -106,7 +110,7 @@ public class BOMSentToSAPAction {
 				PartSyncToOAAction synOA = new PartSyncToOAAction();
 				msg = synOA.sent(partModels);
 				if (!msg.isEmpty()) {
-					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 					return;
 				}
 				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
@@ -118,22 +122,22 @@ public class BOMSentToSAPAction {
 			struct.close();
 			if (!msg.isEmpty()) {
 				log.error(msg);
-				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
 			
 			Map<String, BOMInfoModel> models = struct.getBOMInfo();
 			if (models.size() == 0) {
-				MessageBox.post("任务目标下没有需要同步SAP的BOM！", "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,"任务目标下没有需要同步SAP的BOM！", "提示", MessageBox.INFORMATION);
 				return;
 			}
 			msg = sent(models);
 			if (msg != null && !msg.isEmpty()) {
-				MessageBox.post(msg, "错误", MessageBox.ERROR);
+				MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 				return;
 			}
 			
-			MessageBox.post("BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
+			MessageBox.post(desk,"BOM发送SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (JCoException | TCException | IOException e) {
 			e.printStackTrace();
 			log.error(e);
@@ -166,6 +170,7 @@ public class BOMSentToSAPAction {
 			Collections.sort(bomInfos, new Sort());
 		}
 		for (BOMInfoModel bomInfo : bomInfos) {
+//			JCoFunction function = repository.getFunction(functionName);
 			Map<String, Object> values = bomInfo.getModel();
 			JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
 			Set<String> keys = values.keySet();
@@ -207,6 +212,9 @@ public class BOMSentToSAPAction {
 			if (msg != null && !msg.isEmpty()) {
 				return msg;
 			}
+			headTable.clear();
+			bomlineTable.clear();
+//			function.clone();
 		}
 		return msg;
 	}
