@@ -2,6 +2,7 @@ package com.leoch.sie.custom.sap.models;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.leoch.sie.custom.utils.Part;
 import com.teamcenter.rac.kernel.TCComponentBOMLine;
@@ -121,7 +122,7 @@ public class BOMLineModel {
 		}
 		info.put(MEINS, unit);
 		
-		String ausch = bomLine.getProperty("bl_occ_K8_Sub component"); // 子件损耗率
+		String ausch = bomLine.getProperty("bl_occ_k8_Sub_component"); // 子件损耗率
 		if (ausch.length() > AUSCH_L) {
 			msg += bomLineId + "子件损耗率长度不能超过" + AUSCH_L + "\n";
 		}
@@ -145,10 +146,20 @@ public class BOMLineModel {
 		info.put(SANKA, sanka);
 	
 		String lgort = bomLine.getProperty("bl_occ_k8_Lgort"); // 投料库存地点
-		if (lgort.length() > LGORT_L) {
-			msg += bomLineId + "投料库存地点长度不能超过" + LGORT_L + "\n";
+		String lgort_v= null;
+		Pattern pattern = Pattern.compile("[0-9]*");
+		if (!lgort.isEmpty()) {
+			lgort_v = lgort.substring(0, 4);
+			if (!pattern.matcher(lgort_v).matches()) {
+				msg += bomLineId + "投料库存地点填写出错，请删除数字以外的值" + "\n";
+			}
+			if (lgort_v.length() > LGORT_L) {
+				msg += bomLineId + "投料库存地点长度不能超过" + LGORT_L + "\n";
+			}
+			info.put(LGORT, lgort_v);
+		}else {
+			info.put(LGORT, lgort);
 		}
-		info.put(LGORT, lgort);
 		
 //		String note = bomLine.getProperty("L8_note"); // BOM备注
 //		if (note.length() > POTX1_L) {

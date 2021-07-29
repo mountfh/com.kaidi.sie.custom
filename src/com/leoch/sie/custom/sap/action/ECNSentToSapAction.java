@@ -26,6 +26,7 @@ import com.sap.conn.jco.JCoParameterList;
 import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
+import com.teamcenter.rac.aif.AIFDesktop;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponentItem;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
@@ -73,6 +74,7 @@ public class ECNSentToSapAction {
 		    
 	public void excute() {
 		session = (TCSession) AIFUtility.getDefaultSession();
+		AIFDesktop desk = AIFUtility.getActiveDesktop();
 		String msg = "";
 		List<String> ids = new ArrayList<>();
 		try {			
@@ -90,14 +92,14 @@ public class ECNSentToSapAction {
 			}
 			
 			if (!msg.isEmpty()) {
-				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
 			//发送物料
 			PartSyncToSapAction action = new PartSyncToSapAction(log);
 			msg = action.sent(partModels, ids);
 			if (!msg.isEmpty()) {
-				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
 			//发OA
@@ -106,7 +108,7 @@ public class ECNSentToSapAction {
 				PartSyncToOAAction synOA = new PartSyncToOAAction();
 				msg = synOA.sent(partModels);
 				if (!msg.isEmpty()) {
-					MessageBox.post(msg, "错误", MessageBox.ERROR);
+					MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 					return;
 				}
 				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
@@ -115,17 +117,17 @@ public class ECNSentToSapAction {
 			ECNModel model = new ECNModel(ecn, session, solus);
 			msg = model.load();
 			if (!msg.isEmpty()) {
-				MessageBox.post(msg, "提示", MessageBox.INFORMATION);
+				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
 				return;
 			}
 			
 			msg = sent(model);
 			if (msg != null && !msg.isEmpty()) {
-				MessageBox.post(msg, "错误", MessageBox.ERROR);
+				MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
 				return;
 			}
 		
-			MessageBox.post("ECN同步SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
+			MessageBox.post(desk,"ECN同步SAP成功"+oaMsg, "提示", MessageBox.INFORMATION);
 		} catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();
@@ -151,7 +153,7 @@ public class ECNSentToSapAction {
 		JCoDestination destination = SAPConn.connect();
 		JCoRepository repository = destination.getRepository();
 //		JCoFunction ecn_function = repository.getFunction(ecn_functionName);
-	
+		JCoFunction bom_function = repository.getFunction(bom_functionName);		
 //		JCoStructure headTable = ecn_function.getImportParameterList().getStructure(input_ECN_HDR);
 		
 //		Map<String, Object> values = model.getModel();
@@ -196,7 +198,7 @@ public class ECNSentToSapAction {
 			Collections.sort(bomInfos, new Sort());
 		}
 		for (BOMInfoModel bomInfo : bomInfos) {
-			JCoFunction bom_function = repository.getFunction(bom_functionName);	
+//			JCoFunction bom_function = repository.getFunction(bom_functionName);	
 			JCoStructure headTable = bom_function.getImportParameterList().getStructure(input_BOM_HDR);
 			Map<String, Object> values = model.getModel();
 			Set<String> keys = values.keySet();
@@ -243,7 +245,7 @@ public class ECNSentToSapAction {
 			}
 			headTable.clear();
 			bomlineTable.clear();
-			bom_function.clone();
+//			bom_function.clone();
 		}
 		model.setSentSAPFlag();
 		return msg;

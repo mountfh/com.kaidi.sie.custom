@@ -277,11 +277,16 @@ public class PartModel {
 			}
 			model.put(GROES, groes); // 大小量纲 
 			
-			String zeinr = part.getProperty("k8_drawing_num");
-			if (zeinr.length() > ZEINR_L) {
-				msg += id + "的图号长度不能超过" + (ZEINR_L) + "\n";
+			String zeinr = part.getProperty("k8_drawing_num");//图号
+			if(zeinr == null || zeinr.isEmpty()) {
+				zeinr = part.getProperty("k8_drawing_No");//历史图号
 			}
-		    model.put(ZEINR, zeinr); // 图号
+			if (zeinr.length() > ZEINR_L) {
+				msg += id + "的图号或者历史图号长度不能超过" + (ZEINR_L) + "\n";
+			}
+			model.put(ZEINR, zeinr); // 图号
+			
+		    
 			
 			String type = part.getProperty("k8_internal_order");
 			if (type.length() > NORMT_L) {
