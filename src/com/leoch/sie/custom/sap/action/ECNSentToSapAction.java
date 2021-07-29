@@ -151,7 +151,7 @@ public class ECNSentToSapAction {
 		JCoDestination destination = SAPConn.connect();
 		JCoRepository repository = destination.getRepository();
 //		JCoFunction ecn_function = repository.getFunction(ecn_functionName);
-		JCoFunction bom_function = repository.getFunction(bom_functionName);		
+	
 //		JCoStructure headTable = ecn_function.getImportParameterList().getStructure(input_ECN_HDR);
 		
 //		Map<String, Object> values = model.getModel();
@@ -196,6 +196,7 @@ public class ECNSentToSapAction {
 			Collections.sort(bomInfos, new Sort());
 		}
 		for (BOMInfoModel bomInfo : bomInfos) {
+			JCoFunction bom_function = repository.getFunction(bom_functionName);	
 			JCoStructure headTable = bom_function.getImportParameterList().getStructure(input_BOM_HDR);
 			Map<String, Object> values = model.getModel();
 			Set<String> keys = values.keySet();
@@ -240,6 +241,9 @@ public class ECNSentToSapAction {
 				log.error("SAP ERROR:"+ topID+message);
 				return "SAP ERROR:"+ topID+message;
 			}
+			headTable.clear();
+			bomlineTable.clear();
+			bom_function.clone();
 		}
 		model.setSentSAPFlag();
 		return msg;
