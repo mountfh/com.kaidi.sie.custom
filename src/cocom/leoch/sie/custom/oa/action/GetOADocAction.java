@@ -30,7 +30,7 @@ public class GetOADocAction {
 	private String processNum = ""; 
 	private TCSession session = null;
 	private TCComponentItem ecn = null;
-	private String localPath = "D:\\Temp";
+	private String localPath = "C:\\Temp";
 	private String dateString = null;
 	private String sendSmd = null;
 	
@@ -124,14 +124,18 @@ public class GetOADocAction {
            String oamsg = (String) demoJson.get("message");
            String formfilepath = demoJson.getString("formfilepath");
            String formname = (String) demoJson.get("formfilename");
+           String message = demoJson.getString("message");
            System.out.println(isSuccess);
 		   if(isSuccess != null && isSuccess.equals("S")) {
 				if(issend!=null&&issend.equals("1")){
 					if(!formfilepath.equals("")&&!formname.equals("")){
 //						pigeonhole(formfilepath+"\\"+formname);
 						pigeonhole(formname);
+						return "OA变更表单附件归档成功！归档在EC的变更文件夹中!";
+					}else {
+						return "OA变更表单附件归档失败！"+message;
 					}
-					return "OA变更表单附件归档成功！归档在EC的变更文件夹中!";
+					
 				}else if(issend!=null&&issend.equals("0")){
 					msg = "变更流程尚未走完，无法归档！当前节点为："+node;
 					return msg;

@@ -9,6 +9,8 @@
       <command name="EC变更同步SAP" id="ECNSentToSap" />
       <command name="工艺表新建传送SAP" id="BOPSentToSap" />
       <command name="工艺表变更传送SAP" id="BOPChangeSentToSap" />
+
+      
       
       <command name="获取OA变更表单" id="GetECChange" />
       <command name="获取OA变更表单" id="GetECRequest" />
@@ -18,10 +20,11 @@
    </extension>
    <extension point="org.eclipse.ui.handlers">
    
-        <handler commandId="ImportProjectReport"
+   
+      <handler commandId="ImportProjectReport"
             class="com.leoch.sie.custom.sap.handlers.ImportProjectReportHandlers">
       </handler>
-     <handler commandId="MyAssignTask"
+      <handler commandId="MyAssignTask"
             class="com.ec.custom.handlers.MyAssignTaskHandler">
       </handler>
       <handler commandId="GetECChange"
@@ -37,7 +40,7 @@
       <handler commandId="BOPChangeSentToSap"
             class="com.leoch.sie.custom.sap.handlers.BOPChangeSentToSapHandler">
       </handler>
-        <handler commandId="BOPSentToSap"
+      <handler commandId="BOPSentToSap"
             class="com.leoch.sie.custom.sap.handlers.BOPSentToSapHandler">
       </handler>
       <handler commandId="PartSentToSap"

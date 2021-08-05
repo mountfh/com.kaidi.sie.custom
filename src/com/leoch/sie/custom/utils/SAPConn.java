@@ -19,7 +19,7 @@ public class SAPConn {
 	private static final String ABAP_AS_POOLED = "ABAP_AS_WITH_POOL";
     public static final String DLL_SYSTEM_PATH = "C:\\Windows\\System32\\";
     private static String PATH;
-    public static final String DLL_FULL_NAME = "sapjco3.dll";
+    public static final String DLL_FULL_NAME = "sapjco3.dll"; 
     	
 	private static File cfg;
 	private static Properties connectProperties;
@@ -105,17 +105,19 @@ public class SAPConn {
 			}
     		if (isTest) {
   			
-//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
+//				PATH = "C:\\Siemens\\Teamcenter12\\tccs\\lib\\";
 
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib\\";
+				System.out.println(PATH);
 
 			} else {
 
-//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib";
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib";
+//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib\\";
+				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib\\";
 
 			}
     		sapjco3 = new File(PATH + DLL_FULL_NAME);
+    		System.out.println(sapjco3);
     		if (!sapjco3.exists()) {
     			InputStream is = SAPConn.class.getResourceAsStream(DLL_FULL_NAME);
     			FileOutputStream fos = new FileOutputStream(PATH + DLL_FULL_NAME);
