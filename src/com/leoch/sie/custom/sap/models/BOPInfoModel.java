@@ -132,15 +132,32 @@ public class BOPInfoModel {
 	 * @param status
 	 * @throws TCException
 	 */
-	public void setRowProperty(TCComponentItemRevision comp,String parentID,String gcount,String group,String status) throws TCException{
+	public void setRowProperty(TCComponentItemRevision comp,String parentID,String group,String gcount,String status) throws TCException{
 	
 		Map<String, String> propertyMap = new HashMap<String, String>();
 		propertyMap.put("k8_part", parentID);
-		propertyMap.put("k8_group", gcount);
-		propertyMap.put("k8_groupcount", group);
+		propertyMap.put("k8_group", group);
+		propertyMap.put("k8_groupcount", gcount);
 		propertyMap.put("k8_status", status);
 		TCComponent row = MyCreateUtil.createWorkspaceObject("K8_ProcessRow", propertyMap);
 		comp.add("k8_row", row);				
+	}
+	
+	/**É¾³ýgyÐÐ
+	 * @param comp
+	 * @param parentID
+	 * @throws TCException
+	 */
+	public void removeRowProperty(TCComponentItemRevision comp,String parentID) throws TCException{
+	 	
+		String rowPartID = null;
+		TCComponent[] rowComps = rev.getRelatedComponents("k8_row");
+		 for (int j = 0; j < rowComps.length; j++) {
+			 rowPartID = rowComps[j].getProperty("k8_part");
+			 if(rowPartID.equals(parentID)){
+				 comp.remove("k8_row",rowComps[j]);
+			 }
+		 }
 	}
 	
 	
