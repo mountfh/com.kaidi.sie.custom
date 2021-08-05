@@ -294,11 +294,11 @@ public class PartModel {
 			}
 			model.put(NORMT, type);	// 内部订单		
 			
-			String ferth = part.getProperty("k8_mold_cavity");
-			if (ferth.length() > FERTH_L) {
-				msg += id + " 的物料模穴长度不能超过" + FERTH_L + "\n";
-			}
-			model.put(FERTH, ferth);	// 模穴		
+//			String ferth = part.getProperty("k8_mold_cavity");
+//			if (ferth.length() > FERTH_L) {
+//				msg += id + " 的物料模穴长度不能超过" + FERTH_L + "\n";
+//			}
+//			model.put(FERTH, ferth);	// 模穴		
 			
 			String grun = part.getProperty("k8_description2");
 			if (grun.isEmpty()) {
