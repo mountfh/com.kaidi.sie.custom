@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,8 +47,8 @@ import com.teamcenter.rac.stylesheet.PropertyDateComponent;
 import com.teamcenter.rac.util.MessageBox;
 import com.teamcenter.rac.util.PropertyLayout;
 
-import cocom.leoch.sie.custom.oa.action.BOMCompareTool;
-import cocom.leoch.sie.custom.oa.action.BOMInfo;
+//import cocom.leoch.sie.custom.oa.action.BOMCompareTool;
+//import cocom.leoch.sie.custom.oa.action.BOMInfo;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
@@ -54,7 +56,7 @@ import jcifs.smb.SmbFileOutputStream;
 public class ImportProjectReportHandlers extends AbstractHandler{
 	
 	private TCSession session = (TCSession) AIFUtility.getDefaultSession();	
-	private ArrayList<BOMInfo> BOMInfoList = new ArrayList<>();
+//	private ArrayList<BOMInfo> BOMInfoList = new ArrayList<>();
 	private String parentID = null;
 
 	private JFrame frame = null;
@@ -66,6 +68,32 @@ public class ImportProjectReportHandlers extends AbstractHandler{
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
 		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");//注意月份是MM
+        try {
+			Date date1 = simpleDateFormat.parse("2021-07-30");
+			InterfaceAIFComponent com = AIFUtility.getCurrentApplication().getTargetComponent();
+			if(com instanceof TCComponentItemRevision){
+				Date date2 = ((TCComponentItemRevision) com).getDateProperty("last_mod_date");
+				if(date2.before(date1)){
+					System.out.println("date1>date2");
+				}else{
+					System.out.println("date1<date2");
+				}
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		String smbMachine = "smb://aaa:123456@192.168.1.145/share/123R.xlsx";
+//		String localPath = "D:\\Share";
+//		String remoteUrl = "smb://aaa:123456@192.168.1.145/fenfa";
+//		File file = readFromSmb(smbMachine,localPath);
+//		smbPut(remoteUrl,"D:\\Share\\123R.xlsx");
+//		if(file.exists()){
+//			System.out.println("okokok");
+//		}
+
 //		InterfaceAIFComponent[] aifComponent = AIFUtility.getCurrentApplication().getTargetComponents();
 //		
 //		test(aifComponent);
@@ -81,43 +109,43 @@ public class ImportProjectReportHandlers extends AbstractHandler{
         return null;
         }
 	
-	public void test(InterfaceAIFComponent[] targets) {
-		System.out.println("测试");
-		BOMCompareTool bomct = new BOMCompareTool(targets);
-		TCComponentBOMWindowType bomWindowType;
-		TCComponentBOMWindow window = null;
-		
-		try {
-			bomWindowType = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
-			window = bomWindowType.create(null);
-			for (InterfaceAIFComponent ac : targets) {
-				List<TCComponentBOMLine> NewBOMLine = new ArrayList<>();
-				List<TCComponentBOMLine> OldBOMLine = new ArrayList<>();
-				if(ac instanceof TCComponentItem){
-					TCComponentItem item = (TCComponentItem) ac;
-					parentID = item.getProperty("item_id");
-					TCComponentBOMLine bomLine = window.setWindowTopLine(item, item.getLatestItemRevision(), null, null);	
-				    
-				}else if(ac instanceof TCComponentItemRevision){
-					TCComponentItemRevision itemRev = (TCComponentItemRevision) ac;
-					parentID = itemRev.getProperty("item_id");
-					TCComponentBOMLine bomLine = window.setWindowTopLine(itemRev.getItem(), itemRev, null, null);
-					NewBOMLine =bomct.getNewBOMLine(bomLine, NewBOMLine);
-					OldBOMLine = bomct.getOldBOMLine(itemRev,OldBOMLine);	
-					if(NewBOMLine.size()>0&&OldBOMLine.size()>0) {
-						bomct.CompareBom(NewBOMLine, OldBOMLine, bomLine, itemRev);
-					}else if(NewBOMLine.size()==0&&OldBOMLine.size()>0) {
-						for (int i = 0; i <OldBOMLine.size(); i++) {
-							BOMInfo info = new BOMInfo(bomLine,OldBOMLine.get(i),"0","3");
-							BOMInfoList.add(info);
-						}
-					}
-				}
-			}
-		} catch (TCException e) {
-			e.printStackTrace();
-		}		
-	}
+//	public void test(InterfaceAIFComponent[] targets) {
+//		System.out.println("测试");
+//		BOMCompareTool bomct = new BOMCompareTool(targets);
+//		TCComponentBOMWindowType bomWindowType;
+//		TCComponentBOMWindow window = null;
+//		
+//		try {
+//			bomWindowType = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
+//			window = bomWindowType.create(null);
+//			for (InterfaceAIFComponent ac : targets) {
+//				List<TCComponentBOMLine> NewBOMLine = new ArrayList<>();
+//				List<TCComponentBOMLine> OldBOMLine = new ArrayList<>();
+//				if(ac instanceof TCComponentItem){
+//					TCComponentItem item = (TCComponentItem) ac;
+//					parentID = item.getProperty("item_id");
+//					TCComponentBOMLine bomLine = window.setWindowTopLine(item, item.getLatestItemRevision(), null, null);	
+//				    
+//				}else if(ac instanceof TCComponentItemRevision){
+//					TCComponentItemRevision itemRev = (TCComponentItemRevision) ac;
+//					parentID = itemRev.getProperty("item_id");
+//					TCComponentBOMLine bomLine = window.setWindowTopLine(itemRev.getItem(), itemRev, null, null);
+//					NewBOMLine =bomct.getNewBOMLine(bomLine, NewBOMLine);
+//					OldBOMLine = bomct.getOldBOMLine(itemRev,OldBOMLine);	
+//					if(NewBOMLine.size()>0&&OldBOMLine.size()>0) {
+//						bomct.CompareBom(NewBOMLine, OldBOMLine, bomLine, itemRev);
+//					}else if(NewBOMLine.size()==0&&OldBOMLine.size()>0) {
+//						for (int i = 0; i <OldBOMLine.size(); i++) {
+//							BOMInfo info = new BOMInfo(bomLine,OldBOMLine.get(i),"0","3");
+//							BOMInfoList.add(info);
+//						}
+//					}
+//				}
+//			}
+//		} catch (TCException e) {
+//			e.printStackTrace();
+//		}		
+//	}
 	
 	
 		
