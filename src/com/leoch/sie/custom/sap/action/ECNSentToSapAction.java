@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 import com.teamcenter.rac.aif.AIFDesktop;
 import com.teamcenter.rac.aifrcp.AIFUtility;
+import com.teamcenter.rac.kernel.TCComponent;
 import com.teamcenter.rac.kernel.TCComponentItem;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
@@ -77,13 +79,22 @@ public class ECNSentToSapAction {
 		AIFDesktop desk = AIFUtility.getActiveDesktop();
 		String msg = "";
 		List<String> ids = new ArrayList<>();
+		List<String> ids2 = new ArrayList<>();
 		try {			
 			List<PartModel> partModels = new ArrayList<>();
+			List<PartModel> partModels2 = new ArrayList<>();
+			
 			for (int i = 0; i < solus.size(); i++) {
 				TCComponentItemRevision part = solus.get(i);
 				String revsionId = part.getProperty("item_revision_id");
 				String  sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
 				if (!sentToSAP.contains(revsionId)) {
+					if (isDifferent(part)) {
+						PartModel model2 = new PartModel(part);
+						msg += model2.load();
+						partModels2.add(model2);
+						ids2.add(part.getProperty("item_id"));
+					}
 					PartModel model = new PartModel(part);
 					msg += model.load();
 					partModels.add(model);
@@ -104,14 +115,14 @@ public class ECNSentToSapAction {
 			}
 			//发OA
 			String  oaMsg  = "";
-			if (partModels != null && partModels.size() != 0) {
-				PartSyncToOAAction synOA = new PartSyncToOAAction();
-				msg = synOA.sent(partModels);
-				if (!msg.isEmpty()) {
-					MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
-					return;
-				}
-				oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
+			if (partModels2 != null && partModels2.size() != 0) {
+					PartSyncToOAAction synOA = new PartSyncToOAAction();
+					msg = synOA.sent(partModels2);
+					if (!msg.isEmpty()) {
+						MessageBox.post(desk,msg, "错误", MessageBox.ERROR);
+						return;
+					}
+					oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
 			}
 			//发ECN
 			ECNModel model = new ECNModel(ecn, session, solus);
@@ -134,6 +145,27 @@ public class ECNSentToSapAction {
 			MessageBox.post(e);
 		}		
 		
+	}
+	
+	public boolean isDifferent(TCComponentItemRevision rev) throws TCException {
+		TCComponentItem item = rev.getItem();
+		TCComponent[] comps = item.getReferenceListProperty("revision_list");
+		String oldpurch = null;// 采购类型
+		String oldpush = null;// 反冲
+		String purch = null;// 采购类型
+		String push = null;// 反冲
+		TCComponentItemRevision lastrev = null;
+		if (comps.length > 1) {
+			lastrev = (TCComponentItemRevision) comps[comps.length - 2];
+			oldpurch = rev.getProperty("k8_procurement");
+			oldpush = rev.getProperty("k8_recoil");
+			purch = lastrev.getProperty("k8_procurement");
+			push = lastrev.getProperty("k8_recoil");
+			if (!(oldpurch.equals(purch) && oldpush.equals(push))) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

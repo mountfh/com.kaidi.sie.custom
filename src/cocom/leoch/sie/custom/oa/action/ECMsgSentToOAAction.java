@@ -42,7 +42,7 @@ public class ECMsgSentToOAAction {
 	private HttpURLConnection getHTTPConnection() throws IOException {
 		
 		URL url = new URL(url_address);  
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();  
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");  
         connection.setRequestProperty("content-type", "text/xml;charset=utf-8");  
         connection.setDoInput(true);  
@@ -100,11 +100,20 @@ public class ECMsgSentToOAAction {
             isr.close();  
             br.close();
 //            ecn.setProperty("k8_is_sendOA", "true");
-            ecn.setLogicalProperty("k8_is_sendOA", true);
+//            ecn.setLogicalProperty("k8_is_sendOA", true);
         }else {
         	msg += "物料发送OA失败（没有获取到OA的网络连接）.";
         }  
         os.close();  
+        if(msg.equals("")) {
+        	try {
+                ecn.setLogicalProperty("k8_is_sendOA", true);
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				msg +=e.toString();
+			}
+
+        }
 		return msg;
 	}
 	

@@ -41,12 +41,16 @@ public class BOMLineModel {
 	public static int POTX1_L = 40; // BOM 项目文本长度
 	
 	public static String ALPGR = "ALPGR"; // 替代项目：组(非必填)
+	public static int ALPGR_L = 2;
 	
-	public static String ALPRF = "ALPRF"; // 替代项目：评比定单(非必填)
+	public static String ALPST = "ALPST"; // 替代项目：策略(非必填，替代组 有值默认为：2)
+	public static int ALPST_L = 1;
 	
-	public static String ALPST = "ALPST"; // 替代项目：策略(非必填)
+	public static String ALPRF = "ALPRF"; // 替代项目：优先级(非必填)
+	public static int ALPRF_L = 2;
 	
 	public static String EWAHR = "EWAHR"; // 使用可能性按 % (BTCI)(非必填)
+	public static int EWAHR_L = 3;
 	
 //	public static String NUMBER = "NUMBER"; // 查找编号
 	
@@ -160,6 +164,32 @@ public class BOMLineModel {
 		}else {
 			info.put(LGORT, lgort);
 		}
+		
+		String group = bomLine.getProperty("bl_occ_k8_group");//替代：组
+		if (group.length() > ALPGR_L) {
+			msg += bomLineId + "替代：组长度不能超过" + ALPGR_L + "\n";
+		}
+		info.put(ALPGR, group);
+		
+		String alpst = "2";
+		if (!group.isEmpty()) {
+			info.put(ALPST, alpst);//写入策略
+		}
+		
+		String priority = bomLine.getProperty("bl_occ_k8_priority");//替代：优先级
+		if (priority.length() > ALPRF_L) {
+			msg += bomLineId + "替代：优先级长度度不能超过" + ALPRF_L + "\n";
+		}
+		info.put(ALPRF, priority);
+		
+		String use_probability = bomLine.getProperty("bl_occ_k8_use_probability");//替代：使用概率
+		if (use_probability.length() > EWAHR_L) {
+			msg += bomLineId + "替代：使用概率长度度不能超过" + EWAHR_L + "\n";
+		}
+		info.put(EWAHR, priority);
+		
+		
+		
 		
 //		String note = bomLine.getProperty("L8_note"); // BOM备注
 //		if (note.length() > POTX1_L) {
