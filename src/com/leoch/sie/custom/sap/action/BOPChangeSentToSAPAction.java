@@ -3,18 +3,13 @@ package com.leoch.sie.custom.sap.action;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.leoch.sie.custom.sap.models.BOMStruct;
 import com.leoch.sie.custom.sap.models.BOPInfoModel;
 import com.leoch.sie.custom.sap.models.BOPLineModel;
-import com.leoch.sie.custom.utils.MyCreateUtil;
 import com.leoch.sie.custom.utils.SAPConn;
-import com.leoch.sie.custom.utils.Sort;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -78,9 +73,7 @@ public class BOPChangeSentToSAPAction {
 		} catch (Exception e) {
 			e.printStackTrace();
 			MessageBox.post(e);
-		}
-
-		
+		}		
 	}
 	
 	public void excute1() {
@@ -152,7 +145,7 @@ public class BOPChangeSentToSAPAction {
 		session = (TCSession) AIFUtility.getDefaultSession();
 		String msg = "";
 		for (int i = 0; i < revs.size(); i++) {
-			removeRow(revs.get(i));
+			BOPSendUtil.removeRow(revs.get(i));
 		}
 		    //将所有工艺传到sap
 			struct = new BOMStruct(revs, session); 
@@ -196,48 +189,86 @@ public class BOPChangeSentToSAPAction {
 	}
 	
 	public String changeSend(Map<String, BOPInfoModel> models) throws Exception{
+				
 		String msg = "";
-		String relatedpartID = null;
-		String rowPartID = null;
 		TCComponentItemRevision rev = null;
 		JCoDestination destination = SAPConn.connect();
-		JCoRepository repository = destination.getRepository();
-		JCoFunction function = repository.getFunction(functionName);
+		JCoRepository repository = destination.getRepository();		
 		Collection<BOPInfoModel> list = models.values();
 		List<BOPInfoModel> bomInfos = new ArrayList<>();
+		List<String> deleteRowIdList = new ArrayList<String>();
 		bomInfos.addAll(list);
+		String partid = null;
 		String plnnr  = null;
-		String plnal = null;	
 		for (BOPInfoModel bomInfo : bomInfos) {
 			 rev= bomInfo.getTopRev();			 
 			 TCComponent[] relatedParts = rev.getRelatedComponents("K8_Related_Part");
-			 TCComponent[] rowComps = rev.getRelatedComponents("k8_row");
 			 for (int i = 0; i < relatedParts.length; i++) {
-				 relatedpartID = relatedParts[i].getProperty("item_id");
-				 for (int j = 0; j < rowComps.length; j++) {
-					 rowPartID = rowComps[j].getProperty("k8_part");
-					 if(rowPartID.equals(relatedpartID)){
-						 //变更
-						 plnal = rowComps[j].getProperty("k8_groupcount");
-						 plnnr = rowComps[j].getProperty("k8_group");
-						 msg = change(bomInfo,plnnr,plnal,destination,function,relatedpartID);
-						 if(!msg.equals("")){
-							 throw new Exception(msg);
-						 }
-					 }else{
-						 
-					 }
-					 
-				}
+				 partid = relatedParts[i].getProperty("item_id");
+				 plnnr = BOPSendUtil.getUpdateGroup(rev,partid);
+				 if(plnnr!=null){
+					 //存在组号先变更
+					 msg = change(bomInfo,plnnr,"1",destination,repository,partid);
+					 if(!msg.equals("")){throw  new Exception(msg);}
+				 }else{
+					 //不存在组号，新建工艺
+					 msg = BOPSendUtil.newSent(bomInfo,partid,destination,repository);
+					 if(!msg.equals("")){throw  new Exception(msg);}
+				 }
 			}
-			 Map<String, Object> values = bomInfo.getModel();
-			 
+			 //删除
+			 deleteRowIdList = getDeleteRowData(rev);
+			 if(deleteRowIdList.size()>0){
+				 for (int i = 0; i < deleteRowIdList.size(); i++) {
+					 partid = deleteRowIdList.get(i).split("&")[0];
+					 plnnr = deleteRowIdList.get(i).split("&")[1];
+					 if(!partid.equals("")&&!plnnr.equals("")){
+						 BOPSendUtil.deleteGySend(bomInfo, partid, plnnr, destination, repository);
+					 }
+
+				}
+			 }			
 		}
 		return msg;		
 	}
 	
-	public String change(BOPInfoModel bomInfo,String plnnr,String plnal,JCoDestination destination,JCoFunction function,String relatedpartID) throws Exception{
+	public List<String> getDeleteRowData(TCComponentItemRevision rev) throws TCException{
+		
+		 TCComponent[] relatedParts = rev.getRelatedComponents("K8_Related_Part");
+		List<String> deleteRowIdList = new ArrayList<String>();
+		 String relatedId = null;
+		 String plnnr = null;
+	     String rowPartID = null;
+	     boolean flag = false;
+	 	 TCComponent[] rowComps = rev.getRelatedComponents("k8_row");
+		 for (int j = 0; j < rowComps.length; j++) {
+			 rowPartID = rowComps[j].getProperty("k8_part");
+			 plnnr = rowComps[j].getProperty("k8_group");
+             for (int i = 0; i < relatedParts.length; i++) {
+            	 relatedId = relatedParts[i].getProperty("item_id");
+            	 if(relatedId.equals(rowPartID)){
+            		 flag = true;
+            	 }
+			}
+            if(!flag){deleteRowIdList.add(rowPartID+"&"+plnnr);}
+		 }
+		return deleteRowIdList;
+	}
+	
+	
+	/**变更
+	 * @param bomInfo
+	 * @param plnnr
+	 * @param plnal
+	 * @param destination
+	 * @param repository
+	 * @param relatedpartID
+	 * @return
+	 * @throws Exception
+	 */
+	public String change(BOPInfoModel bomInfo,String plnnr,String plnal,JCoDestination destination,JCoRepository repository,String relatedpartID) throws Exception{
 		String msg = "";
+		JCoFunction function = repository.getFunction(functionName);
 		JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
 		JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
 		Map<String, Object> values = bomInfo.getModel();
@@ -279,6 +310,7 @@ public class BOPChangeSentToSAPAction {
 //			log.error(message);
 			msg += message + "\n";
 		} else {
+			System.out.println(plnnro+":"+plnalo);
 //			if(plnnr!=null&&!plnnr.equals("")) {
 //				bomInfo.setRowProperty(rev, relatedpartID, plnal, plnnr, "在用");
 //			}
@@ -422,39 +454,6 @@ public class BOPChangeSentToSAPAction {
 			}
 		}
 		return msg;
-	}
-	
-	public String setSapGroup(TCComponentItemRevision comp,String parentID,String gcount,String group,String status) throws TCException{
-		
-		Map<String, String> propertyMap = new HashMap<String, String>();
-		propertyMap.put("k8_part", parentID);
-		propertyMap.put("k8_group", gcount);
-		propertyMap.put("k8_groupcount", group);
-		propertyMap.put("k8_status", status);
-		String temp = null;
-		TCComponent row = MyCreateUtil.createWorkspaceObject("K8_ProcessRow", propertyMap);
-				TCComponent[] comps = comp.getRelatedComponents("k8_row");
-				if(comps.length>0){
-					for (int i = 0; i < comps.length; i++) {
-						temp = comps[i].getProperty("k8_part");
-						if(temp.equals(parentID)){
-							comp.remove("k8_row", comps[i]);							
-						}
-						comp.add("k8_row", row);
-					}
-				}else{
-					 comp.add("k8_row", row);
-				}
-		return null;		
-	}
-	
-	public void removeRow(TCComponentItemRevision comp) throws TCException{
-		TCComponent[] comps = comp.getRelatedComponents("k8_row");
-		if(comps.length>0){
-				for (int i = 0; i < comps.length; i++) {
-					comp.remove("k8_row", comps[i]);
-				}
-		}
 	}
 	
 }

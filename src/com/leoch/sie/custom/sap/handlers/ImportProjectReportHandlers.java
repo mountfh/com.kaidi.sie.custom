@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,14 +55,31 @@ public class ImportProjectReportHandlers extends AbstractHandler{
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
 		
-		String smbMachine = "smb://aaa:123456@192.168.1.145/share/123R.xlsx";
-		String localPath = "D:\\Share";
-		String remoteUrl = "smb://aaa:123456@192.168.1.145/fenfa";
-		File file = readFromSmb(smbMachine,localPath);
-//		smbPut(remoteUrl,"D:\\Share\\123R.xlsx");
-		if(file.exists()){
-			System.out.println("okokok");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");//注意月份是MM
+        try {
+			Date date1 = simpleDateFormat.parse("2021-07-30");
+			InterfaceAIFComponent com = AIFUtility.getCurrentApplication().getTargetComponent();
+			if(com instanceof TCComponentItemRevision){
+				Date date2 = ((TCComponentItemRevision) com).getDateProperty("last_mod_date");
+				if(date2.before(date1)){
+					System.out.println("date1>date2");
+				}else{
+					System.out.println("date1<date2");
+				}
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+//		String smbMachine = "smb://aaa:123456@192.168.1.145/share/123R.xlsx";
+//		String localPath = "D:\\Share";
+//		String remoteUrl = "smb://aaa:123456@192.168.1.145/fenfa";
+//		File file = readFromSmb(smbMachine,localPath);
+//		smbPut(remoteUrl,"D:\\Share\\123R.xlsx");
+//		if(file.exists()){
+//			System.out.println("okokok");
+//		}
 
 		
 //		Map<String, String> propertyMap = new HashMap<String, String>();

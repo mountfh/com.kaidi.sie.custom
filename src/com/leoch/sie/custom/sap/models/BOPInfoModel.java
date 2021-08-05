@@ -143,6 +143,23 @@ public class BOPInfoModel {
 		comp.add("k8_row", row);				
 	}
 	
+	/**É¾³ýgyÐÐ
+	 * @param comp
+	 * @param parentID
+	 * @throws TCException
+	 */
+	public void removeRowProperty(TCComponentItemRevision comp,String parentID) throws TCException{
+	 	
+		String rowPartID = null;
+		TCComponent[] rowComps = rev.getRelatedComponents("k8_row");
+		 for (int j = 0; j < rowComps.length; j++) {
+			 rowPartID = rowComps[j].getProperty("k8_part");
+			 if(rowPartID.equals(parentID)){
+				 comp.remove("k8_row",rowComps[j]);
+			 }
+		 }
+	}
+	
 	
 	public void setERPBackProperty(String property,String value) throws TCException {
 //		session.getUserService().call("avicit_call_bypass", new Object[] { 1 });

@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.leoch.sie.custom.sap.models.BOMStruct;
 import com.leoch.sie.custom.sap.models.BOPInfoModel;
 import com.leoch.sie.custom.sap.models.BOPLineModel;
 import com.leoch.sie.custom.utils.MyCreateUtil;
 import com.leoch.sie.custom.utils.SAPConn;
-import com.leoch.sie.custom.utils.Sort;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -32,9 +30,11 @@ public class BOPSentToSapAction {
 	List<TCComponentItemRevision> revs;
 	TCSession session;
 	
-	public static String functionName = "ZFUNC_001";
+	public static String functionName = "ZFUNC_001"; //新建
 	
-//	public static String functionName = "ZFUNC_003";
+	public static String functionName1 = "ZFUNC_003"; //修改
+	
+	public static String functionName2 = "ZFUNC_004"; //删除
 	
 	public static String input_BOM_HDR = "I_INPUT";
 	
@@ -53,13 +53,13 @@ public class BOPSentToSapAction {
 	
 	public void excute() {
 		
-		try {
+		try {			
 			BOMStruct struct = null;
 			session = (TCSession) AIFUtility.getDefaultSession();
 			String msg = "";
 			//将所有A版本 的工艺表的置空。
-			for (int i = 0; i < revs.size(); i++) {
-				removeRow(revs.get(i));
+			for (int i = 0; i < revs.size(); i++) {				
+				BOPSendUtil.removeRow(revs.get(i));
 			}
 			//将所有工艺传到sap
 				struct = new BOMStruct(revs, session); 
@@ -73,8 +73,9 @@ public class BOPSentToSapAction {
 				if (models.size() == 0) {
 					MessageBox.post("任务目标下没有需要同步SAP的工艺表！", "提示", MessageBox.INFORMATION);
 					return;
-				}
-				msg = createSend(models);
+				}	
+//				msg = createSend(models);
+				msg = send(models);
 				if (msg != null && !msg.isEmpty()) {
 					MessageBox.post(msg, "错误", MessageBox.ERROR);
 					return;
@@ -87,13 +88,18 @@ public class BOPSentToSapAction {
 		}		
 	}
 	
+
+	
 	public String createSend(Map<String, BOPInfoModel> models) throws Exception{
+		
 		String msg = "";
 		String relatedpartID = null;
 		TCComponentItemRevision rev = null;
+				
 		JCoDestination destination = SAPConn.connect();
 		JCoRepository repository = destination.getRepository();
 		JCoFunction function = repository.getFunction(functionName);
+		
 		Collection<BOPInfoModel> list = models.values();
 		List<BOPInfoModel> bomInfos = new ArrayList<>();
 		bomInfos.addAll(list);
@@ -102,12 +108,18 @@ public class BOPSentToSapAction {
 			 TCComponent[] relatedParts = rev.getRelatedComponents("K8_Related_Part");
 			 Map<String, Object> values = bomInfo.getModel();
 			 for (int j = 0; j < relatedParts.length; j++) {
+					String group = null;
 					JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
 				    relatedpartID =relatedParts[j].getProperty("item_id");
 					JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
 					Set<String> keys = values.keySet();
-					values.put("MATNR", relatedpartID);
+					values.put("MATNR", relatedpartID);					
 					relatedpartID = (String) values.get("MATNR");
+					group = BOPSendUtil.getUpdateGroup(rev,relatedpartID);
+					if(group!=null){
+						values.put("PLNAL", "1");
+						values.put("PLNNR", group);	
+					}
 					String info = "";
 					for (String key : keys) {
 						info += key + "=" + values.get(key) + "\n";
@@ -143,9 +155,6 @@ public class BOPSentToSapAction {
 					} else {
 						if(plnnr!=null&&!plnnr.equals("")) {
 							bomInfo.setRowProperty(rev, relatedpartID,plnnr, plnal, "在用");
-//							setSapGroup(rev,relatedpartID,plnal,plnnr,"在用");
-							bomInfo.setERPBackProperty("k8_PLNNR", plnnr);
-							bomInfo.setERPBackProperty("k8_PLNAL", plnal);
 						}
 						bomInfo.setSentSAPFlag();
 //						log.info(message);
@@ -158,94 +167,209 @@ public class BOPSentToSapAction {
 		return msg;
 	}
 	
-	public String sent(Map<String, BOPInfoModel> models,String relatedID,TCComponentItemRevision rev) throws JCoException, TCException, IOException{
-		String msg = "";
+	public String send(Map<String, BOPInfoModel> models) throws Exception{
+		
 		JCoDestination destination = SAPConn.connect();
 		JCoRepository repository = destination.getRepository();
-		JCoFunction function = repository.getFunction(functionName);
-		Collection<BOPInfoModel> list = models.values();
+		String msg = "";
 		List<BOPInfoModel> bomInfos = new ArrayList<>();
+		Collection<BOPInfoModel> list = models.values();
 		bomInfos.addAll(list);
+		TCComponentItemRevision rev = null;
+		String group = null;
+		String partid = null;
 		for (BOPInfoModel bomInfo : bomInfos) {
-			Map<String, Object> values = bomInfo.getModel();
-			JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
-			Set<String> keys = values.keySet();
-			values.put("MATNR", relatedID);
-			String topID = (String) values.get("MATNR");
-			String info = "";
-			for (String key : keys) {
-				info += key + "=" + values.get(key) + "\n";
-				headTable.setValue(key, values.get(key));
+			 rev= bomInfo.getTopRev();
+			 rev.refresh();
+			 TCComponent[] relatedParts = rev.getRelatedComponents("K8_Related_Part");
+			 for (int i = 0; i < relatedParts.length; i++) {
+				 partid = relatedParts[i].getProperty("item_id");
+				 group = BOPSendUtil.getUpdateGroup(rev,partid);
+				 if(group!=null){
+					 //存在组号先删除
+					 msg = deleteGySend(bomInfo,partid,group,destination,repository);
+					 if(!msg.equals("")){throw  new Exception(msg);}
+				 }else{
+					 //不存在组号，新建工艺
+					 msg = newSent(bomInfo,partid,destination,repository);
+					 if(!msg.equals("")){throw  new Exception(msg);}
+				 }
 			}
-			System.out.println("TopBOM:" + topID + ":"+ "\n" + info);
-			List<BOPLineModel>  bomlineInfos = bomInfo.getBOMLinModel();
-			JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
-			for (int i = 0; i < bomlineInfos.size(); i++) {
-				BOPLineModel bomlineInfo = bomlineInfos.get(i);
-				bomlineTable.insertRow(i);
-				values = bomlineInfo.getModel();
-				keys = values.keySet();
-				String childID = values.get("IDNRK") + "";
-				info = "";
-				for (String key : keys) {
-					info += key + "=" + values.get(key) + "\n";
-					bomlineTable.setValue(key, values.get(key));
-				}
-				System.out.println("SubLine:" + childID + ":\n" + info);
-			}
-			System.out.println(bomlineTable.toString());
-			function.execute(destination);
-			JCoStructure table = function.getExportParameterList().getStructure(export_Table);
-			String type = 	table.getString("STA");
-			String message = table.getString("MESSAGE");
-			String plnnr  = table.getString("PLNNR");
-			String plnal = table.getString("PLNAL");	
-			System.out.println(message);
-			if (!"S".equals(type)) {
-				message = "SAP ERROR:"+ topID+ message;
-//				log.error(message);
-				msg += message + "\n";
-			} else {
-				if(plnnr!=null&&!plnnr.equals("")) {
-					setSapGroup(rev,topID,plnal,plnnr,"在用");
-					bomInfo.setERPBackProperty("k8_PLNNR", plnnr);
-					bomInfo.setERPBackProperty("k8_PLNAL", plnal);
-				}
-//				bomInfo.setSentSAPFlag();
-//				log.info(message);
-			}
-			if (msg != null && !msg.isEmpty()) {
-				return msg;
-			}
-		}
+			 
+		}	
 		return msg;
 	}
 	
-	/**
-	 * @param comp
-	 * @param parentID
-	 * @param gcount
-	 * @param group
-	 * @param status
-	 * @throws TCException
-	 */
-	public void setSapGroup(TCComponentItemRevision comp,String parentID,String gcount,String group,String status) throws TCException{
-	
-		Map<String, String> propertyMap = new HashMap<String, String>();
-		propertyMap.put("k8_part", parentID);
-		propertyMap.put("k8_group", gcount);
-		propertyMap.put("k8_groupcount", group);
-		propertyMap.put("k8_status", status);
-		TCComponent row = MyCreateUtil.createWorkspaceObject("K8_ProcessRow", propertyMap);
-		comp.add("k8_row", row);				
-	}
-	
-	public void removeRow(TCComponentItemRevision comp) throws TCException{
-		TCComponent[] comps = comp.getRelatedComponents("k8_row");
-		if(comps.length>0){
-				for (int i = 0; i < comps.length; i++) {
-					comp.remove("k8_row", comps[i]);
-				}
+	public String deleteGySend(BOPInfoModel bomInfo,String partid,String plnnr,JCoDestination destination,JCoRepository repository) throws JCoException{
+		
+		String msg = "";
+		TCComponentItemRevision rev = bomInfo.getTopRev();
+		JCoFunction function = repository.getFunction(functionName2);
+		Map<String, Object> values = bomInfo.getModel();
+		JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
+		Set<String> keys = values.keySet();
+		values.put("MATNR", partid);
+		values.put("PLNNR", plnnr);
+		values.put("PLNAL", "1");
+		String topID = (String) values.get("MATNR");
+		String info = "";
+		for (String key : keys) {
+			info += key + "=" + values.get(key) + "\n";
+			headTable.setValue(key, values.get(key));
 		}
+		System.out.println("TopBOM:" + topID + ":"+ "\n" + info);
+		List<BOPLineModel>  bomlineInfos = bomInfo.getBOMLinModel();
+		JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
+		for (int i = 0; i < bomlineInfos.size(); i++) {
+			BOPLineModel bomlineInfo = bomlineInfos.get(i);
+			bomlineTable.insertRow(i);
+			values = bomlineInfo.getModel();
+			keys = values.keySet();
+			String childID = values.get("IDNRK") + "";
+			info = "";
+			for (String key : keys) {
+				info += key + "=" + values.get(key) + "\n";
+				bomlineTable.setValue(key, values.get(key));
+			}
+			System.out.println("SubLine:" + childID + ":\n" + info);
+		}
+		System.out.println(bomlineTable.toString());
+		function.execute(destination);
+		JCoStructure table = function.getExportParameterList().getStructure(export_Table);
+		String type = table.getString("STA");
+		String message = table.getString("MESSAGE");
+		plnnr  = table.getString("PLNNR");
+		String plnal = table.getString("PLNAL");	
+		System.out.println(message);
+		if (!"S".equals(type)) {
+			message = "SAP ERROR:"+ topID+ message;
+//			log.error(message);
+			msg += message + "\n";
+		}else{
+			if(!plnnr.equals("")||!plnal.equals("")){
+//				bomInfo.setRowProperty(rev, partid,plnnr, plnal, "在用");
+			}
+		} 
+		if (msg != null && !msg.isEmpty()) {
+			return msg;
+		}
+		return null;
+		
 	}
+	
+	public String newSent(BOPInfoModel bomInfo,String partid,JCoDestination destination,JCoRepository repository) throws JCoException, TCException{
+		
+		String msg = "";
+		TCComponentItemRevision rev = bomInfo.getTopRev();
+		JCoFunction function = repository.getFunction(functionName);
+		Map<String, Object> values = bomInfo.getModel();
+		JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
+		Set<String> keys = values.keySet();
+		values.put("MATNR", partid);
+		String topID = (String) values.get("MATNR");
+		String info = "";
+		for (String key : keys) {
+			info += key + "=" + values.get(key) + "\n";
+			headTable.setValue(key, values.get(key));
+		}
+		System.out.println("TopBOM:" + topID + ":"+ "\n" + info);
+		List<BOPLineModel>  bomlineInfos = bomInfo.getBOMLinModel();
+		JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
+		for (int i = 0; i < bomlineInfos.size(); i++) {
+			BOPLineModel bomlineInfo = bomlineInfos.get(i);
+			bomlineTable.insertRow(i);
+			values = bomlineInfo.getModel();
+			keys = values.keySet();
+			String childID = values.get("IDNRK") + "";
+			info = "";
+			for (String key : keys) {
+				info += key + "=" + values.get(key) + "\n";
+				bomlineTable.setValue(key, values.get(key));
+			}
+			System.out.println("SubLine:" + childID + ":\n" + info);
+		}
+		System.out.println(bomlineTable.toString());
+		function.execute(destination);
+		JCoStructure table = function.getExportParameterList().getStructure(export_Table);
+		String type = 	table.getString("STA");
+		String message = table.getString("MESSAGE");
+		String plnnr  = table.getString("PLNNR");
+		String plnal = table.getString("PLNAL");	
+		System.out.println(message);
+		if (!"S".equals(type)) {
+			message = "SAP ERROR:"+ topID+ message;
+//			log.error(message);
+			msg += message + "\n";
+		}else{
+			if(!plnnr.equals("")||!plnal.equals("")){
+				bomInfo.setRowProperty(rev, partid,plnnr, plnal, "在用");
+			}
+		}
+		headTable.clear();
+		bomlineTable.clear();
+		if (msg != null && !msg.isEmpty()) {
+			return msg;
+		}
+		return msg;
+	}
+
+	
+	public String changeSent(BOPInfoModel bomInfo,String partid,String plnnr,JCoDestination destination,JCoRepository repository) throws JCoException, TCException{
+		
+		JCoFunction function = repository.getFunction(functionName1);
+		String msg = "";
+		TCComponentItemRevision rev = bomInfo.getTopRev();
+		Map<String, Object> values = bomInfo.getModel();
+		JCoStructure headTable = function.getImportParameterList().getStructure(input_BOM_HDR);
+		Set<String> keys = values.keySet();
+		values.put("MATNR", partid);
+		values.put("PLNNR", plnnr);
+		values.put("PLNAL", "1");
+		String topID = (String) values.get("MATNR");
+		String info = "";
+		for (String key : keys) {
+			info += key + "=" + values.get(key) + "\n";
+			headTable.setValue(key, values.get(key));
+		}
+		System.out.println("TopBOM:" + topID + ":"+ "\n" + info);
+		List<BOPLineModel>  bomlineInfos = bomInfo.getBOMLinModel();
+		JCoTable bomlineTable = function.getTableParameterList().getTable(input_BOM_ITEM);
+		for (int i = 0; i < bomlineInfos.size(); i++) {
+			BOPLineModel bomlineInfo = bomlineInfos.get(i);
+			bomlineTable.insertRow(i);
+			values = bomlineInfo.getModel();
+			keys = values.keySet();
+			String childID = values.get("IDNRK") + "";
+			info = "";
+			for (String key : keys) {
+				info += key + "=" + values.get(key) + "\n";
+				bomlineTable.setValue(key, values.get(key));
+			}
+			System.out.println("SubLine:" + childID + ":\n" + info);
+		}
+		System.out.println(bomlineTable.toString());
+		function.execute(destination);
+		JCoStructure table = function.getExportParameterList().getStructure(export_Table);
+		String type = 	table.getString("STA");
+		String message = table.getString("MESSAGE");
+		plnnr  = table.getString("PLNNR");
+		String plnal = table.getString("PLNAL");	
+		System.out.println(message);
+		if (!"S".equals(type)) {
+			message = "SAP ERROR:"+ topID+ message;
+//			log.error(message);
+			msg += message + "\n";
+		}else{
+			if(!plnnr.equals("")||!plnal.equals("")){
+				System.out.println(plnnr+":>"+plnal);
+//				bomInfo.setRowProperty(rev, partid,plnnr, plnal, "在用");
+			}
+		} 
+		if (msg != null && !msg.isEmpty()) {
+			return msg;
+		}
+		return msg;
+		
+	}
+	
 }
