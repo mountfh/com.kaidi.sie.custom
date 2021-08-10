@@ -9,7 +9,6 @@ public class MyPerference {
 
 	private static final String OA_Address = "K8_OA_Address";// OA地址例：【http://192.168.1.145:88】
 	private static final String Smb_Address = "K8_Smb_Address";// 两个值【Send】【Get】用:隔开
-	private static final String PATH_Address = "K8_PATH_Address";// 获取tccs路径
 
 	private static TCPreferenceService service;
 
@@ -21,9 +20,6 @@ public class MyPerference {
 		return getStringValue(OA_Address);
 	}
 	
-	public static String getPATHAddress() throws TCException {
-		return getStringValue(PATH_Address);
-	}
 
 	public static TCPreferenceService getService() throws TCException {
 		if (service == null) {
