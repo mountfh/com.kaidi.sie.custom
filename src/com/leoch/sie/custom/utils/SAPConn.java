@@ -18,16 +18,14 @@ public class SAPConn {
 
 	private static final String ABAP_AS_POOLED = "ABAP_AS_WITH_POOL";
     public static final String DLL_SYSTEM_PATH = "C:\\Windows\\System32\\";
-    private static String PATH;
-    public static final String DLL_FULL_NAME = "sapjco3.dll"; 
-    	
+    private static String PATH = null;
+    public static final String DLL_FULL_NAME = "sapjco3.dll";
 	private static File cfg;
 	private static Properties connectProperties;
-	
 	private static JCoDestination destination = null;
 	private static boolean isTest; // 真值为测试系统连接参数,反之为正式系统连接参数
 	private static String p_name = "K8_SYSTEM_CONNET_FLAG";
-
+	
 	static {
 		connectProperties = new Properties();
 		TCSession session = (TCSession) AIFUtility.getDefaultSession();
@@ -96,6 +94,7 @@ public class SAPConn {
 	 */
         
     public static void createDll2System32() throws IOException{
+    	File file = new File("C:\\Siemens\\Teamcenter12\\tccs\\lib\\");
     	try {
     		File sapjco3 = new File(DLL_SYSTEM_PATH + DLL_FULL_NAME);
     		if (!sapjco3.exists()) {
@@ -104,16 +103,24 @@ public class SAPConn {
     			copyFile(is, fos);
 			}
     		if (isTest) {
-  			
-//				PATH = "C:\\Siemens\\Teamcenter12\\tccs\\lib\\";
-
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib\\";
+    			
+//    			PATH = MyPerference.getPATHAddress();
+    			if (file.exists()) {
+    				PATH = "C:\\Siemens\\Teamcenter12\\tccs\\lib";
+				}else {
+					PATH = "D:\\Siemens\\Teamcenter12\\tccs\\lib";
+				}
+				
+				
 				System.out.println(PATH);
 
 			} else {
-
-//				PATH = "C:\\Siemens\\Teamcenter12RAC4\\tccs\\lib\\";
-				PATH = "D:\\Siemens\\RAC4TF\\tccs\\lib\\";
+//				PATH = MyPerference.getPATHAddress();
+				if (file.exists()) {
+    				PATH = "C:\\Siemens\\Teamcenter12\\tccs\\lib\\";
+				}else {
+					PATH = "D:\\Siemens\\Teamcenter12\\tccs\\lib";
+				}
 
 			}
     		sapjco3 = new File(PATH + DLL_FULL_NAME);

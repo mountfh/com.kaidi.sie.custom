@@ -20,6 +20,7 @@ public class MyPerference {
 	public static String getOAAddress() throws TCException {
 		return getStringValue(OA_Address);
 	}
+	
 
 	public static String[] getCopyProperty() throws TCException{
 		return getStringValues(CopyProperty);
