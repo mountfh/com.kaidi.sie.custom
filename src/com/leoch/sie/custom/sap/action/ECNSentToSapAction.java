@@ -28,14 +28,19 @@ import com.sap.conn.jco.JCoRepository;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 import com.teamcenter.rac.aif.AIFDesktop;
+import com.teamcenter.rac.aif.kernel.AIFComponentContext;
 import com.teamcenter.rac.aifrcp.AIFUtility;
 import com.teamcenter.rac.kernel.TCComponent;
+import com.teamcenter.rac.kernel.TCComponentBOMLine;
+import com.teamcenter.rac.kernel.TCComponentBOMWindow;
+import com.teamcenter.rac.kernel.TCComponentBOMWindowType;
 import com.teamcenter.rac.kernel.TCComponentItem;
 import com.teamcenter.rac.kernel.TCComponentItemRevision;
 import com.teamcenter.rac.kernel.TCException;
 import com.teamcenter.rac.kernel.TCSession;
 import com.teamcenter.rac.util.MessageBox;
 
+import cocom.leoch.sie.custom.oa.action.BOMCompareTool;
 import cocom.leoch.sie.custom.oa.action.PartSyncToOAAction;
 
 public class ECNSentToSapAction {
@@ -58,8 +63,12 @@ public class ECNSentToSapAction {
 	
 	TCComponentItem ecn;
 	List<TCComponentItemRevision> solus;
+	private List<TCComponentItemRevision> solus2;
 	TCSession session;
-		    	
+	
+	BOMCompareTool bomc ;
+	List<TCComponentBOMLine> BOMLine = new ArrayList<>();
+	
 	public ECNSentToSapAction(TCComponentItem ecn, List<TCComponentItemRevision> solus) {
 		this.ecn = ecn;
 		this.solus = solus;
@@ -77,10 +86,15 @@ public class ECNSentToSapAction {
 	public void excute() {
 		session = (TCSession) AIFUtility.getDefaultSession();
 		AIFDesktop desk = AIFUtility.getActiveDesktop();
+		TCComponentBOMWindowType bomWindowType;
+		TCComponentBOMWindow window = null;
 		String msg = "";
 		List<String> ids = new ArrayList<>();
 		List<String> ids2 = new ArrayList<>();
+		solus2 = new ArrayList<>();
 		try {			
+			bomWindowType = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
+			window = bomWindowType.create(null);
 			List<PartModel> partModels = new ArrayList<>();
 			List<PartModel> partModels2 = new ArrayList<>();
 			
@@ -89,6 +103,12 @@ public class ECNSentToSapAction {
 				String revsionId = part.getProperty("item_revision_id");
 				String  sentToSAP = part.getProperty(PartModel.PartSentSAPFlag);
 				if (!sentToSAP.contains(revsionId)) {
+					if (revsionId.equals("A")) {
+						PartModel model2 = new PartModel(part);
+						msg += model2.load();
+						partModels2.add(model2);
+						ids2.add(part.getProperty("item_id"));
+					}
 					if (isDifferent(part)) {
 						PartModel model2 = new PartModel(part);
 						msg += model2.load();
@@ -99,6 +119,15 @@ public class ECNSentToSapAction {
 					msg += model.load();
 					partModels.add(model);
 					ids.add(part.getProperty("item_id"));
+					
+					
+					TCComponentBOMLine bomLine = window.setWindowTopLine(part.getItem(), part, null, null);
+					String tcbomname = bomLine.toString();
+					//比较BOM
+					if (tcbomname.contains("视图")) {
+						BOMCompareTool(part);
+					}
+					
 				}
 			}
 			
@@ -125,7 +154,7 @@ public class ECNSentToSapAction {
 					oaMsg = ",物料新建发送SAP与OA成功！OA的流程号是："+synOA.getProcessNum();
 			}
 			//发ECN
-			ECNModel model = new ECNModel(ecn, session, solus);
+			ECNModel model = new ECNModel(ecn, session, solus2);
 			msg = model.load();
 			if (!msg.isEmpty()) {
 				MessageBox.post(desk,msg, "提示", MessageBox.INFORMATION);
@@ -147,6 +176,7 @@ public class ECNSentToSapAction {
 		
 	}
 	
+	//发送OA时判断属性是否更改
 	public boolean isDifferent(TCComponentItemRevision rev) throws TCException {
 		TCComponentItem item = rev.getItem();
 		TCComponent[] comps = item.getReferenceListProperty("revision_list");
@@ -168,6 +198,141 @@ public class ECNSentToSapAction {
 		return false;
 	}
 	
+	public void BOMCompareTool(TCComponentItemRevision itemRev) {
+		TCComponentBOMWindowType bomWindowType;
+		TCComponentBOMWindow window = null;
+		try {
+			bomWindowType = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
+			window = bomWindowType.create(null);
+			List<TCComponentBOMLine> NewBOMLine = new ArrayList<>();
+			List<TCComponentBOMLine> OldBOMLine = new ArrayList<>();
+			TCComponentBOMLine bomLine = window.setWindowTopLine(itemRev.getItem(), itemRev, null, null);
+			NewBOMLine = getNewBOMLine(bomLine, NewBOMLine);
+			OldBOMLine = getOldBOMLine(itemRev, OldBOMLine);
+			if (NewBOMLine.size() > 0 && OldBOMLine.size() > 0) {
+				CompareBom(NewBOMLine, OldBOMLine, bomLine,itemRev);
+			}
+		} catch (TCException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 新旧版本是bom比较
+	 * 
+	 * @param NewBOMLine
+	 * @param OldBOMLine
+	 * @param itemRev
+	 * @throws TCException 创建Create = 1 修改Update = 2 删除Delete = 3
+	 */
+	public void CompareBom(List<TCComponentBOMLine> NewBOMLine, List<TCComponentBOMLine> OldBOMLine,
+			TCComponentBOMLine ParentLine, TCComponentItemRevision itemRev) throws TCException {
+		String action = null;
+		String olditemid = null;
+		String newitemid = null;
+		String oldquantity = null;
+		String newquantity = null;
+		String newSanka = null;
+		String oldSanka = null;
+		String newLgort = null;
+		String oldLgort = null;
+		Boolean flag = null;
+		// 删除的BOM行
+		for (TCComponentBOMLine tcOldBOMLine : OldBOMLine) {
+			tcOldBOMLine.refresh();
+			olditemid = tcOldBOMLine.getProperty("bl_item_item_id");
+			oldquantity = tcOldBOMLine.getProperty("bl_quantity");
+			flag = true;
+			for (TCComponentBOMLine tcNewBOMLine : NewBOMLine) {
+				newitemid = tcNewBOMLine.getProperty("bl_item_item_id");
+				newquantity = tcNewBOMLine.getProperty("bl_quantity");
+				if (olditemid.equals(newitemid)) {
+					flag = false;
+					break;
+				}
+			}
+			if (flag) {
+				action = "3";
+				if (!solus2.contains(itemRev)) {
+					solus2.add(itemRev);
+					System.out.println(solus2.toString());
+				}
+			}
+		}
+		// 新增的BOM行和修改的BOM行
+		for (TCComponentBOMLine tcNewBOMLine : NewBOMLine) {
+			tcNewBOMLine.refresh();
+			newitemid = tcNewBOMLine.getProperty("bl_item_item_id");
+			newquantity = tcNewBOMLine.getProperty("bl_quantity");
+			newSanka = tcNewBOMLine.getProperty("bl_occ_k8_Sanka");
+			newLgort = tcNewBOMLine.getProperty("bl_occ_k8_Lgort");
+			flag = true;
+			for (TCComponentBOMLine tcOldBOMLine : OldBOMLine) {
+				olditemid = tcOldBOMLine.getProperty("bl_item_item_id");
+				oldquantity = tcOldBOMLine.getProperty("bl_quantity");
+				oldSanka = tcOldBOMLine.getProperty("bl_occ_k8_Sanka");
+				oldLgort = tcNewBOMLine.getProperty("bl_occ_k8_Lgort");
+				if (olditemid.equals(newitemid)) {
+					if (!oldquantity.equals(newquantity) || !newSanka.equals(oldSanka) || !newLgort.equals(oldLgort)) {
+						action = "2";
+						if (!solus2.contains(itemRev)) {
+							solus2.add(itemRev);
+							System.out.println(solus2.toString());
+						}
+
+					}
+					flag = false;
+					break;
+				}
+			}
+			if (flag) {
+				action = "1";
+				if (!solus2.contains(itemRev)) {
+					solus2.add(itemRev);
+				}
+			}
+		}
+	}
+	
+	public List<TCComponentBOMLine> getNewBOMLine(TCComponentBOMLine bomLine, List<TCComponentBOMLine> lines)
+			throws TCException {
+		AIFComponentContext[] Contexts = bomLine.getChildren();
+		for (int i = 0; i < Contexts.length; i++) {
+			lines.add((TCComponentBOMLine) Contexts[i].getComponent());
+		}
+		return lines;
+	}
+	
+	public TCComponentItemRevision getPreviousRev(TCComponentItemRevision itemRev){
+		TCComponentItemRevision rev = null;
+		try {
+			TCComponent[] comps = itemRev.getRelatedComponents("revision_list");
+			if(comps.length>1){
+				rev = (TCComponentItemRevision) comps[comps.length-2];
+			}
+		} catch (TCException e) {
+			e.printStackTrace();
+		}
+		return rev;
+	}
+
+	public List<TCComponentBOMLine> getOldBOMLine(TCComponentItemRevision itemRev, List<TCComponentBOMLine> lines)
+			throws TCException {
+
+		TCComponentBOMWindowType bomWindowType;
+
+		bomWindowType = (TCComponentBOMWindowType) session.getTypeComponent("BOMWindow");
+		TCComponentBOMWindow window = bomWindowType.create(null);
+		TCComponentItemRevision prerev = getPreviousRev(itemRev);
+		TCComponentBOMLine bomLine = window.setWindowTopLine(prerev.getItem(), prerev, null, null);
+		AIFComponentContext[] Contexts = bomLine.getChildren();
+		for (int i = 0; i < Contexts.length; i++) {
+			lines.add((TCComponentBOMLine) Contexts[i].getComponent());
+		}
+
+		return lines;
+	}
+	
 	/**
 	 * @Title: sent
 	 * @Description: 发送SAP
@@ -179,7 +344,6 @@ public class ECNSentToSapAction {
 	 * @return String   发送SAP的结果
 	 * @throws
 	 */
-		    
 	public String sent(ECNModel model) throws JCoException, TCException, IOException{
 		String msg = "";
 		JCoDestination destination = SAPConn.connect();
