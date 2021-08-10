@@ -305,6 +305,7 @@ public class BOPSentToSapAction {
 				bomInfo.setRowProperty(rev, partid,plnnr, plnal, "‘⁄”√");
 			}
 		}
+
 		headTable.clear();
 		bomlineTable.clear();
 		if (msg != null && !msg.isEmpty()) {
